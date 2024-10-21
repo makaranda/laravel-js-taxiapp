@@ -16,15 +16,15 @@ jobs:
       - name: Upload files via FTP
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}  # Optional, defaults to 21
-          local-dir: ./  # Directory to upload (./ means root of your repository)
-          server-dir: /path/on/server  # Path on your shared hosting (e.g., public_html)
+          server: ${{ secrets.FTP_SERVER }}  # Your FTP server
+          username: ${{ secrets.FTP_USERNAME }}  # Your FTP username
+          password: ${{ secrets.FTP_PASSWORD }}  # Your FTP password
+          port: ${{ secrets.FTP_PORT }}  # Optional, defaults to 21 if not provided
+          local-dir: ./  # Root directory of the repository
+          server-dir: /taxiweb.insyncsafety.com  # Replace with your actual FTP server directory
           exclude: |
             .git*
             .github/
             node_modules/
             *.md
-          force-upload: true  # Optional, force all files to be uploaded
+          force-upload: true  # Optional, forces all files to be uploaded even if unchanged
