@@ -170,6 +170,7 @@
     background: #06007c;
     box-shadow: 0 0 40px 5px rgb(0 0 0 / 5%);;
     z-index: 1;
+
     &:hover{
         color: #3c31ff;
         background: #1900a9;
@@ -182,6 +183,7 @@
     background: var(--color-white);
     border-radius: 20px;
     box-shadow: 0 0 40px 5px rgb(0 0 0 / 32%);
+
     .theme-btn {
         width: 100%;
         padding: 15px;
