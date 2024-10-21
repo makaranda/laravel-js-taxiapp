@@ -21,10 +21,11 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}  # Your FTP password
           port: ${{ secrets.FTP_PORT }}  # Optional, defaults to 21 if not provided
           local-dir: ./  # Root directory of the repository
-          server-dir: /taxiweb.insyncsafety.com/  # Replace with your actual FTP server directory
-          exclude: |
-            .git*
-            .github/
-            node_modules/
-            *.md
-          force-upload: true  # Optional, forces all files to be uploaded even if unchanged
+          server-dir: /home/insync1/taxiweb.insyncsafety.com/  # Replace with your actual FTP server directory
+          exclude: ""
+          #exclude: |
+           # .git*
+           # .github/
+           # node_modules/
+           # *.md
+          #  force-upload: true  # Optional, forces all files to be uploaded even if unchanged
