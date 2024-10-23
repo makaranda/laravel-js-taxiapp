@@ -51,7 +51,7 @@
        <li><a href="#"><i class="far fa-layer-group"></i> My Booking</a></li>
        <li><a href="#"><i class="far fa-xmark-circle"></i> Cancel Booking</a></li>
        <li><a href="#"><i class="far fa-credit-card"></i> Payment History</a></li>
-       <li><a href="#"><i class="far fa-gear"></i> Settings</a></li>
+       {{-- <li><a href="#"><i class="far fa-gear"></i> Settings</a></li> --}}
        <li><a href="#" class="logoutBtn"><i class="far fa-sign-out"></i> Logout</a></li>
     </ul>
  </div>

@@ -7,8 +7,8 @@
                    <div class="col-md-6 col-lg-4">
                       <div class="dashboard-widget dashboard-widget-color-1">
                          <div class="dashboard-widget-info">
-                            <h1>05</h1>
-                            <span>Upcoming Booking</span>
+                            <h1>{{ $allUpcommingBooking ?? 0 }}</h1>
+                            <span>Pending Booking</span>
                          </div>
                          <div class="dashboard-widget-icon">
                             <i class="fal fa-list"></i>
@@ -18,7 +18,7 @@
                    <div class="col-md-6 col-lg-4">
                       <div class="dashboard-widget dashboard-widget-color-2">
                          <div class="dashboard-widget-info">
-                            <h1>1250</h1>
+                            <h1>{{ $allTotalBooking ?? 0 }}</h1>
                             <span>Total Booking</span>
                          </div>
                          <div class="dashboard-widget-icon">
@@ -29,7 +29,7 @@
                    <div class="col-md-6 col-lg-4">
                       <div class="dashboard-widget dashboard-widget-color-3">
                          <div class="dashboard-widget-info">
-                            <h1>110</h1>
+                            <h1>{{ $allCancelBooking ?? 0 }}</h1>
                             <span>Cancel Booking</span>
                          </div>
                          <div class="dashboard-widget-icon">
@@ -41,7 +41,7 @@
                 <div class="row">
                    <div class="col-lg-12">
                       <div class="user-profile-card">
-                         <h4 class="user-profile-card-title">Upcoming Booking</h4>
+                         <h4 class="user-profile-card-title">Pending Booking</h4>
                          <div class="table-responsive">
                             <table class="table text-nowrap">
                                <thead>
@@ -58,7 +58,7 @@
                                      <td>
                                         <div class="table-list-info">
                                            <a href="#">
-                                              <img src="assets/img/taxi/01.png" alt>
+                                              <img src="{{ url('public/assets/img/taxi/taxi_sample.png') }}" alt>
                                               <div class="table-list-content">
                                                  <h6>Mercedes Benz Taxi</h6>
                                                  <span>Booking ID: #123456</span>
@@ -80,7 +80,7 @@
                                      <td>
                                         <div class="table-list-info">
                                            <a href="#">
-                                              <img src="assets/img/taxi/01.png" alt>
+                                              <img src="{{ url('public/assets/img/taxi/taxi_sample.png') }}" alt>
                                               <div class="table-list-content">
                                                  <h6>Mercedes Benz Taxi</h6>
                                                  <span>Booking ID: #123456</span>
@@ -102,7 +102,7 @@
                                      <td>
                                         <div class="table-list-info">
                                            <a href="#">
-                                              <img src="assets/img/taxi/01.png" alt>
+                                              <img src="{{ url('public/assets/img/taxi/taxi_sample.png') }}" alt>
                                               <div class="table-list-content">
                                                  <h6>Mercedes Benz Taxi</h6>
                                                  <span>Booking ID: #123456</span>
@@ -124,7 +124,7 @@
                                      <td>
                                         <div class="table-list-info">
                                            <a href="#">
-                                              <img src="assets/img/taxi/01.png" alt>
+                                              <img src="{{ url('public/assets/img/taxi/taxi_sample.png') }}" alt>
                                               <div class="table-list-content">
                                                  <h6>Mercedes Benz Taxi</h6>
                                                  <span>Booking ID: #123456</span>
@@ -146,7 +146,7 @@
                                      <td>
                                         <div class="table-list-info">
                                            <a href="#">
-                                              <img src="assets/img/taxi/01.png" alt>
+                                              <img src="{{ url('public/assets/img/taxi/taxi_sample.png') }}" alt>
                                               <div class="table-list-content">
                                                  <h6>Mercedes Benz Taxi</h6>
                                                  <span>Booking ID: #123456</span>

@@ -27,13 +27,19 @@
     <strong>Warning!</strong> <span class="alert_messages"></span>
   </div>
 <script>
-    $(document).ready(function(){
+$(document).ready(function(){
     flatpickr("#nav_pick_up_time", {
       enableTime: true,
       noCalendar: true,
       dateFormat: "H:i",
       time_24hr: true
     });
+
+    var now = new Date();
+    var currentTime = formatAMPM(now);
+    $('#pick_up_time').val(currentTime);
+    $('#nav_pick_up_time').val(currentTime);
+
     $('.nav-booking-btn').on('click',function(){
         //console.log('Booking ..!!');
         $('#bookingModal').modal('show');
@@ -50,6 +56,139 @@
     //     checkCurrentBooking();
     // }, 5000);
 
+    $('#pickuplocation,#navpickuplocation').on('click', function() {
+        console.log("pickup");
+        if ($(this).attr('id') === 'pickuplocation') {
+            $('#formType').val("pickup");
+        }else if($(this).attr('id') === 'navpickuplocation'){
+            $('#formType').val("navpickup");
+        }
+        $('#locationmodallbl').text("Pickup Location");
+        $('#locationmodal').modal('show');
+    });
+
+    $('#dropofflocation,#navdropofflocation').on('click', function() {
+        //console.log("dropoff");
+        if ($(this).attr('id') === 'dropofflocation') {
+            $('#formType').val("dropoff");
+        }else if($(this).attr('id') === 'navdropofflocation'){
+            $('#formType').val("navdropoff");
+        }
+
+        $('#locationmodallbl').text("Dropoff Location");
+        $('#locationmodal').modal('show');
+    });
+
+    $('#locationPickup').on('submit', function(event) {
+        event.preventDefault(); // Corrected 'preventDefault' method
+        if($("#formType").val() == 'pickup'){
+            $('#picup_long').val($('#longatude').val());
+            $('#picup_lati').val($('#latitude').val());
+
+            $('#pickuplocation').val('Assign the Location');
+            $('#pickuplocation').css({'background-color':'#7cfc0029','color':'#15ad15'});
+        }else if($("#formType").val() == 'navpickup'){
+            $('#nav_picup_long').val($('#longatude').val());
+            $('#nav_picup_lati').val($('#latitude').val());
+
+            $('#navpickuplocation').val('Assign the Location');
+            $('#navpickuplocation').css({'background-color':'#7cfc0029','color':'#15ad15'});
+        }else if($("#formType").val() == 'dropoff'){
+            $('#dropoff_long').val($('#longatude').val());
+            $('#dropoff_lati').val($('#latitude').val());
+
+            $('#dropofflocation').val('Assign the Location');
+            $('#dropofflocation').css({'background-color':'#7cfc0029','color':'#15ad15'});
+        }else if($("#formType").val() == 'navdropoff'){
+            $('#nav_dropoff_long').val($('#longatude').val());
+            $('#nav_dropoff_lati').val($('#latitude').val());
+
+            $('#navdropofflocation').val('Assign the Location');
+            $('#navdropofflocation').css({'background-color':'#7cfc0029','color':'#15ad15'});
+        }
+        $('#locationmodal').modal('hide');
+        //console.log("locationPickup");
+    });
+
+    var map;
+    $('#locationmodal').on('shown.bs.modal', function () {
+        // Check if map already exists to avoid reinitializing
+        //console.log('window mapInitialized' + window.mapInitialized);
+        //if (!window.mapInitialized) {
+            //window.mapInitialized = true; // Prevent reinitialization
+            //console.log('testi pickup');
+            // Use browser's geolocation to get the current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // Get the coordinates
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    //alert();
+                    console.log('Latitude:', lat, 'Longitude:', lng); // Log the coordinates
+                    $('#latitude').val(lat);
+                    $('#longatude').val(lng);
+
+                    // Initialize Leaflet map centered on user's location
+                    var map = L.map('mapid').setView([lat, lng], 13);
+
+                    // Add OpenStreetMap tiles
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(map);
+
+                    // Create a draggable marker for the user's current location
+                    var marker = L.marker([lat, lng], { draggable: true }).addTo(map)
+                        .bindPopup('Your current location.')
+                        .openPopup();
+
+                    // Listen for the dragend event to update coordinates
+                    marker.on('dragend', function(e) {
+                        var newLatLng = marker.getLatLng();
+                        $('#latitude').val(newLatLng.lat);
+                        $('#longatude').val(newLatLng.lng);
+                        marker.bindPopup('Moved to: ' + newLatLng.lat.toFixed(5) + ', ' + newLatLng.lng.toFixed(5)).openPopup();
+                    });
+
+                    // Listen for map clicks to add a new marker at the clicked location
+                    map.on('click', function(e) {
+                        var clickedLat = e.latlng.lat;
+                        var clickedLng = e.latlng.lng;
+
+                        // Update input fields with the clicked location
+                        $('#latitude').val(clickedLat);
+                        $('#longatude').val(clickedLng);
+
+                        // Remove the previous marker if it exists and create a new one
+                        if (marker) {
+                            map.removeLayer(marker); // Remove the old marker
+                        }
+
+                        // Add a new marker at the clicked location
+                        marker = L.marker([clickedLat, clickedLng], { draggable: true }).addTo(map)
+                            .bindPopup('New location: ' + clickedLat.toFixed(5) + ', ' + clickedLng.toFixed(5))
+                            .openPopup();
+
+                        // Update the coordinates when the new marker is dragged
+                        marker.on('dragend', function(e) {
+                            var newLatLng = marker.getLatLng();
+                            $('#latitude').val(newLatLng.lat);
+                            $('#longatude').val(newLatLng.lng);
+                            marker.bindPopup('Moved to: ' + newLatLng.lat.toFixed(5) + ', ' + newLatLng.lng.toFixed(5)).openPopup();
+                        });
+                    });
+
+                }, function(error) {
+                    console.error('Geolocation error:', error);
+                    alert('Unable to retrieve your location.');
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        //}
+    });
+
+
+
     $('#scroll-top2').on('click',function(){
         checkCurrentBooking();
     });
@@ -61,12 +200,12 @@
     $('#customModal').on('shown.bs.modal', function () {
         var checkUserUrl = '{{ route("booking.checkbooking") }}';
         var csrfToken = '{{ csrf_token() }}';
-
+        var map_booking_id = $('#map_booking_id').val();
         $.ajax({
             url: checkUserUrl,
             type: 'POST',
             dataType: 'json',
-            data: { action: 'checkuser', _token: csrfToken },
+            data: { action: 'checkuser', _token: csrfToken,map_booking_id:map_booking_id },
             success: function(data) {
                 if (data.status == 1 && data.booking == 1) {
                     var customer_name = data.customer_name;
@@ -98,6 +237,7 @@
 
                         // Fetch the route from server
                         var checkUserUrl2 = '{{ route("booking.getroute") }}';
+                        var checkUserUrl3 = '{{ route("booking.updatepricedistance") }}';
                         var csrfToken2 = '{{ csrf_token() }}';
 
                         $.ajax({
@@ -127,6 +267,25 @@
                                     console.log('Distance (meters):', distanceInMeters);
                                     console.log('Distance (kilometers):', distanceInKilometers);
 
+                                    $.ajax({
+                                        url: checkUserUrl3,
+                                        type: 'GET',
+                                        dataType: 'json',
+                                        data: {
+                                            action: 'checkuser',
+                                            distancemeeter: distanceInMeters,
+                                            distancekm: distanceInKilometers,
+                                            map_booking_id: map_booking_id,
+                                        },
+                                        headers: {
+                                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                        },
+                                        success: function(data) {
+                                            console.log(data);
+                                            $('#showModalDestances').text(data.distancekm+'km');
+                                            $('#showModalCharge').text(data.totalCharged);
+                                        }
+                                    });
                                     try {
                                         // Decode the polyline
                                         var decodedCoordinates = polyline.decode(polylineEncoded);
@@ -179,7 +338,7 @@
 
                                         // Automatically open the popups when the page loads
                                         pickupMarker.openPopup();  // Opens the pickup popup on page load
-                                        dropoffMarker.openPopup();  // Opens the drop-off popup on page load
+                                        //dropoffMarker.openPopup();  // Opens the drop-off popup on page load
 
 
                                     } catch (error) {
@@ -251,6 +410,7 @@
             var isValid = true;
             var errors = [];
             formType = (formType === 'nav-next')?'nav-':'';
+            var formName = ''+formType+'step';
             // Clear previous alerts
             $('#validationAlertArea').html(''); // Clear previous error messages
             console.log(step,formType);
@@ -258,7 +418,7 @@
             let vehicleTypeErrorDisplayed = false;
             //$('.alert').text('TESTING');
             // Loop through required fields in the given step
-
+            console.log(formType);
             $('#' + formType + 'step-' + step + ' input, #' + formType + 'step-' + step + ' select').each(function() {
                 if ($(this).prop('required')) {
                     if ($(this).val() === "" || $(this).val() === null) {
@@ -267,12 +427,12 @@
                         isValid = false;
 
                     }
-                }else if($('input[name="vehicle_type"]:checked').length === 0 && !vehicleTypeErrorDisplayed){
+                }else if($('input[name="vehicle_type"]:checked').length === 0 && formName == 'step' && !vehicleTypeErrorDisplayed){
                     var errorMessage = "Choose Vehicle field is required.";
                     errors.push(errorMessage); // Collect error messages
                     vehicleTypeErrorDisplayed = true;
                     isValid = false;
-                }else if($('input[name="nav_vehicle_type"]:checked').length === 0 && !vehicleTypeErrorDisplayed){
+                }else if($('input[name="nav_vehicle_type"]:checked').length === 0 && formName == 'nav-step' && !vehicleTypeErrorDisplayed){
                     var errorMessage = "Choose Vehicle field is required.";
                     errors.push(errorMessage); // Collect error messages
                     vehicleTypeErrorDisplayed = true;
@@ -327,6 +487,7 @@
             var nextStep = $(this).data('next');
             var currentStep = nextStep - 1;
             var formType = 'next';
+            console.log($('#pick_up_time').val());
             if (validateStepFields(currentStep,formType)) {
                 $('.form-step').hide(); // Hide all steps
                 // Show the next step
@@ -400,6 +561,7 @@
             var currentStep = nextStep - 1;
             var formType = 'nav-next';
             console.log(formType,nextStep);
+            console.log($('#nav_pick_up_time').val());
             if (validateStepFields(currentStep,formType)) {
                 $('.nav-form-step').hide(); // Hide all steps
                 // Show the next step
@@ -506,7 +668,7 @@
         // Show the previous step when clicking on 'Previous' button
         $('.nav-previous-step').on('click', function() {
             var previousStep = $(this).data('previous');
-            $('.form-step').hide(); // Hide all steps
+            $('.nav-form-step').hide(); // Hide all steps
             //$('#step-' + previousStep).show(); // Show the previous step
 
             console.log(previousStep);
@@ -579,6 +741,7 @@
                                 if ($('#navFormBookingHome').length) {
                                     $('#navFormBookingHome')[0].reset();
                                 }
+                                $('#map_booking_id').val(response.booking_id);
                                 $('#navpickuplocation').css({'background-color':'#fff','color':'#000'});
                                 $('#navdropofflocation').css({'background-color':'#fff','color':'#000'});
 
@@ -651,6 +814,7 @@
                             $('#pick_up_time').val(currentTime);
                             if(response.messageType === 'success'){
                                 checkCurrentBooking();
+                                $('#map_booking_id').val(response.booking_id);
                                 $('#pickuplocation').css({'background-color':'#fff','color':'#000'});
                                 $('#dropofflocation').css({'background-color':'#fff','color':'#000'});
                             }

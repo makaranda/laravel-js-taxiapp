@@ -96,10 +96,20 @@
         <div class="modal-body p-0">
           <input type="hidden" name="pick_up_location" id="pick_up_location"/>
           <input type="hidden" name="drop_off_location" id="drop_off_location"/>
+          <input type="hidden" name="map_destance" id="map_destance"/>
+          <input type="hidden" name="map_booking_id" id="map_booking_id" value="{{ session('booking_id', 0) }}"/>
           <div id="showMap"  style="height: 400px;width:100%;"></div>
         </div>
-        <div class="modal-footer d-none">
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+        <div class="modal-footer d-block">
+            <div class="row">
+                <div class="col-12 col-md-6">
+                    <h6>Destances : <span id="showModalDestances">0</span></h6>
+                </div>
+                <div class="col-12 col-md-6">
+                    <h6>Charge : Rs <span id="showModalCharge">00</span></h6>
+                </div>
+            </div>
+          {{-- <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> --}}
         </div>
       </div>
     </div>
@@ -156,7 +166,7 @@
                    <div class="col-lg-2">
                       <div class="form-group">
                          <label>Pick Up Time</label>
-                         <input type="text" class="form-control time-picker" value="{{ date('h:i A') }}" placeholder="00:00 AM" data-title="Pickup Time" name="nav_pick_up_time" id="nav_pick_up_time" required>
+                         <input type="text" class="form-control time-picker" value="" placeholder="00:00 AM" data-title="Pickup Time" name="nav_pick_up_time" id="nav_pick_up_time" required>
                          <i class="far fa-clock"></i>
                       </div>
                    </div>
@@ -247,6 +257,36 @@
     </div>
 </div>
 
+
+ <!-- Modal -->
+ <div class="modal fade" id="locationmodal" tabindex="-1" aria-labelledby="locationmodallbl" aria-hidden="true">
+    <div class="modal-dialog">
+      <form action="#" method="POST" id="locationPickup">
+        <input type="hidden" name="formType" id="formType"/>
+        <input type="hidden" name="longatude" id="longatude"/>
+        <input type="hidden" name="latitude" id="latitude"/>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="locationmodallbl">Pickup Location</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div id="mapid" style="height: 400px;"></div>
+        </div>
+        <div class="modal-footer d-block">
+            <div class="row">
+                <div class="col-6 col-md-6 pl-0">
+                    <button type="button" class="btn btn-danger w-100" data-bs-dismiss="modal">Close</button>
+                </div>
+                <div class="col-6 col-md-6 pr-0">
+                    <button type="submit" class="btn btn-primary w-100">Add Location</button>
+                </div>
+            </div>
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
 
 <script src="{{ url('public/assets/js/jquery-3.6.0.min.js') }}"></script>
 

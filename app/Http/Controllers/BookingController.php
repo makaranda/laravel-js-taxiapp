@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\User;
 use App\Models\Bookings;
+use App\Models\VehicleTypes;
 use DateTime;
 
 class BookingController extends Controller
@@ -32,6 +33,7 @@ class BookingController extends Controller
         */
         $messageType = '';
         $message = '';
+        $inserted_id = 0;
 
         // Validate the incoming request data
         $rules = [
@@ -148,18 +150,24 @@ class BookingController extends Controller
                     // Save the data
                     $addDatas->fill($proData);
                     $addDatas->save();
+                    $insertedId = $addDatas->id;
 
                     $messageType = 'success';
                     $message = 'You have successfully Added the Booking successfully..!!';
+                    $inserted_id = $insertedId;
+                    session(['booking_id' => $insertedId]);
                 }else{
                     $messageType = 'error';
                     $message = 'Your Phone Number is Not Verified Please Try again..!!';
+                    $inserted_id = 0;
                 }
 
 
             } else {
                 $messageType = 'error';
                 $message = 'You are not login to here, before you submit this booking you must login to this system..!!';
+                $inserted_id = 0;
+                session()->forget('booking_id');
             }
         }
         //$allVehicleTypes = VehicleTypes::where('status', 1)->get();
@@ -167,6 +175,7 @@ class BookingController extends Controller
         $responseData = [
             'message' => $message,
             'messageType' => $messageType,
+            'booking_id' => $inserted_id,
         ];
 
         // Return the JSON response
@@ -268,6 +277,41 @@ class BookingController extends Controller
         }
     }
 
+    public function updatePriceDistance(Request $request){
+        //distancemeeter distancekm map_booking_id
+        $distancemeeter = $request->distancekm;
+        $distancekm = $request->distancekm;
+        $totalCharged = 0;
+        $map_booking_id = $request->map_booking_id ?? session('booking_id');
+        if (Auth::check()) {
+            $checkBookings = Bookings::where('status', 1)
+                                    ->where('id',$map_booking_id)
+                                    ->whereIn('active', ['pending', 'active'])
+                                    ->where('pick_up_date', date('Y-m-d'))
+                                    ->first();
+            $vehicle_id = $checkBookings->vehicle_type;
+            $allVehicleTypes = VehicleTypes::where('status', 1)->where('id',$vehicle_id)->first();
+            $cost_perkm = $allVehicleTypes->perkm_charge;
+            $totalCharged = $cost_perkm * $distancekm;
+            Bookings::where('status', 1)
+                    ->where('id',$map_booking_id)
+                    ->update([
+                        'total_charged' => $totalCharged,
+                        'total_km' => $distancekm
+                    ]);
+            $responseData = [
+                'distancekm' => $distancekm,
+                'totalCharged' => $totalCharged,
+            ];
+        }else{
+            $responseData = [
+                'distancekm' => $distancekm,
+                'totalCharged' => $totalCharged,
+            ];
+        }
+        return response()->json($responseData);
+    }
+
     public function frontCheckBooking(Request $request){
         $message = '';
         $messageType = '';
@@ -275,17 +319,29 @@ class BookingController extends Controller
         $status = 0;
         $pick_up_location = '';
         $drop_off_location = '';
+        $map_booking_id = $request->map_booking_id ?? session('booking_id');
 
         if (Auth::check()) {
             $status = 1;
-            $checkBookings = Bookings::where('status', 1)
+
+            if(!empty($map_booking_id)){
+                $checkBookings = Bookings::where('status', 1)
+                                    ->where('id',$map_booking_id)
                                     ->whereIn('active', ['pending', 'active'])
                                     ->where('pick_up_date', date('Y-m-d'))
                                     ->first();
+            }else{
+                $checkBookings = Bookings::where('status', 1)
+                                    ->whereIn('active', ['pending', 'active'])
+                                    ->where('pick_up_date', date('Y-m-d'))
+                                    ->first();
+            }
+
             if ($checkBookings) {
                 $booking = 1;
                 $pick_up_location = $checkBookings->pick_up_location;
                 $drop_off_location = $checkBookings->drop_off_location;
+
             } else {
                 $booking = 0;
                 $pick_up_location = '';
