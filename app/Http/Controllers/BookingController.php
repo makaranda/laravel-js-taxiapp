@@ -256,6 +256,18 @@ class BookingController extends Controller
         return response()->json($route);
     }
 
+    public function bookingCancel(Request $request){
+        $check_today = date('Y-m-d');
+        $checkAllBookings = Bookings::where('status', 1)
+                                ->whereIn('active', ['pending', 'active'])
+                                ->where('pick_up_date','<', $check_today )
+                                ->get();
+        foreach($checkAllBookings as $key => $bookingVal){
+            $bookingVal->active = 'cancel';
+            $bookingVal->save();
+        }
+    }
+
     public function frontCheckBooking(Request $request){
         $message = '';
         $messageType = '';

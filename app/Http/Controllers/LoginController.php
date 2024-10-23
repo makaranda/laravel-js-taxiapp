@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\VehicleTypes;
 
 class LoginController extends Controller
 {
@@ -17,7 +18,8 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
-        return view('pages.frontend.login'); // Make sure to create this view (auth/login.blade.php)
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        return view('pages.frontend.login',compact('allVehicleTypes')); // Make sure to create this view (auth/login.blade.php)
     }
 
     /**

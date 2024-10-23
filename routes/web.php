@@ -37,6 +37,7 @@ Route::post('booking-checkuser', [BookingController::class, 'frontCheckUser'])->
 Route::post('booking-loginuser', [BookingController::class, 'frontLoginUser'])->name('booking.loginuser');
 Route::post('booking-check-booking', [BookingController::class, 'frontCheckBooking'])->name('booking.checkbooking');
 Route::post('booking-get-route', [BookingController::class, 'frontGetRoute'])->name('booking.getroute');
+Route::post('booking-cancel', [BookingController::class, 'bookingCancel'])->name('booking.cancel');
 
 // Protect routes by role-based middleware
 

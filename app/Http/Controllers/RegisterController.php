@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Models\VehicleTypes;
 
 class RegisterController extends Controller
 {
@@ -182,7 +183,8 @@ class RegisterController extends Controller
      */
     public function indexRegister()
     {
-        return view('pages.frontend.regsiter_home');
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        return view('pages.frontend.regsiter_home',compact('allVehicleTypes'));
     }
 
     public function showCustomerRegisterForm()
