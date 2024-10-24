@@ -42,130 +42,8 @@
                    <div class="col-lg-12">
                       <div class="user-profile-card">
                          <h4 class="user-profile-card-title">Pending Booking</h4>
-                         <div class="table-responsive">
-                            <table class="table text-nowrap">
-                               <thead>
-                                  <tr>
-                                     <th>Cab Info</th>
-                                     <th>Journey Date</th>
-                                     <th>Drop Off Location</th>
-                                     <th>Price</th>
-                                     <th>Status</th>
-                                  </tr>
-                               </thead>
-                               <tbody>
-                                  <tr>
-                                     <td>
-                                        <div class="table-list-info">
-                                           <a href="#">
-                                              <img src="{{ url('public/assets/img/taxi/taxi_sample.png') }}" alt>
-                                              <div class="table-list-content">
-                                                 <h6>Mercedes Benz Taxi</h6>
-                                                 <span>Booking ID: #123456</span>
-                                              </div>
-                                           </a>
-                                        </div>
-                                     </td>
-                                     <td>
-                                        <span>24 February, 2023</span>
-                                        <p>03:15 PM</p>
-                                     </td>
-                                     <td>
-                                        77 Sunshine Strip, Harlingen
-                                     </td>
-                                     <td>$650</td>
-                                     <td><span class="badge badge-primary">Upcoming</span></td>
-                                  </tr>
-                                  <tr>
-                                     <td>
-                                        <div class="table-list-info">
-                                           <a href="#">
-                                              <img src="{{ url('public/assets/img/taxi/taxi_sample.png') }}" alt>
-                                              <div class="table-list-content">
-                                                 <h6>Mercedes Benz Taxi</h6>
-                                                 <span>Booking ID: #123456</span>
-                                              </div>
-                                           </a>
-                                        </div>
-                                     </td>
-                                     <td>
-                                        <span>24 February, 2023</span>
-                                        <p>03:15 PM</p>
-                                     </td>
-                                     <td>
-                                        77 Sunshine Strip, Harlingen
-                                     </td>
-                                     <td>$650</td>
-                                     <td><span class="badge badge-primary">Upcoming</span></td>
-                                  </tr>
-                                  <tr>
-                                     <td>
-                                        <div class="table-list-info">
-                                           <a href="#">
-                                              <img src="{{ url('public/assets/img/taxi/taxi_sample.png') }}" alt>
-                                              <div class="table-list-content">
-                                                 <h6>Mercedes Benz Taxi</h6>
-                                                 <span>Booking ID: #123456</span>
-                                              </div>
-                                           </a>
-                                        </div>
-                                     </td>
-                                     <td>
-                                        <span>24 February, 2023</span>
-                                        <p>03:15 PM</p>
-                                     </td>
-                                     <td>
-                                        77 Sunshine Strip, Harlingen
-                                     </td>
-                                     <td>$650</td>
-                                     <td><span class="badge badge-primary">Upcoming</span></td>
-                                  </tr>
-                                  <tr>
-                                     <td>
-                                        <div class="table-list-info">
-                                           <a href="#">
-                                              <img src="{{ url('public/assets/img/taxi/taxi_sample.png') }}" alt>
-                                              <div class="table-list-content">
-                                                 <h6>Mercedes Benz Taxi</h6>
-                                                 <span>Booking ID: #123456</span>
-                                              </div>
-                                           </a>
-                                        </div>
-                                     </td>
-                                     <td>
-                                        <span>24 February, 2023</span>
-                                        <p>03:15 PM</p>
-                                     </td>
-                                     <td>
-                                        77 Sunshine Strip, Harlingen
-                                     </td>
-                                     <td>$650</td>
-                                     <td><span class="badge badge-primary">Upcoming</span></td>
-                                  </tr>
-                                  <tr>
-                                     <td>
-                                        <div class="table-list-info">
-                                           <a href="#">
-                                              <img src="{{ url('public/assets/img/taxi/taxi_sample.png') }}" alt>
-                                              <div class="table-list-content">
-                                                 <h6>Mercedes Benz Taxi</h6>
-                                                 <span>Booking ID: #123456</span>
-                                              </div>
-                                           </a>
-                                        </div>
-                                     </td>
-                                     <td>
-                                        <span>24 February, 2023</span>
-                                        <p>03:15 PM</p>
-                                     </td>
-                                     <td>
-                                        77 Sunshine Strip, Harlingen
-                                     </td>
-                                     <td>$650</td>
-                                     <td><span class="badge badge-primary">Upcoming</span></td>
-                                  </tr>
-                               </tbody>
-                            </table>
+                         <div class="table-responsive" id="pendingBooking">
+
                          </div>
                       </div>
                    </div>
@@ -183,7 +61,24 @@
 @endpush
 @push('scripts')
 <script>
+    fetchPendingBooking();
+    function fetchPendingBooking(){
+        var checkUserUrl = '{{ route("customer.fetchpendingbooking") }}';
+        var csrfToken = '{{ csrf_token() }}';
 
+        $.ajax({
+            url: checkUserUrl,
+            type: 'GET',
+            //dataType: 'json',
+            data: { action: 'checkuser', _token: csrfToken },
+            success: function(data) {
+                console.log(data);
+                //if (data.pending_booking) {
+                    $('#pendingBooking').html(data);
+                //}
+            }
+        });
+    }
 </script>
 
 @endpush

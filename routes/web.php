@@ -52,6 +52,9 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer/dashboard')->grou
     Route::get('/', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
     Route::get('/profile', [CustomerDashboardController::class, 'customerProfile'])->name('customer.profile');
     Route::get('/booking', [CustomerDashboardController::class, 'customerBooking'])->name('customer.booking');
+    Route::post('/update-profile', [CustomerDashboardController::class, 'customerUpdateProfile'])->name('customer.updateprofile');
+    Route::post('/update-password', [CustomerDashboardController::class, 'customerUpdatePassword'])->name('customer.updatepassword');
+    Route::get('/fetch-pending-booking', [CustomerDashboardController::class, 'fetchPedingBooking'])->name('customer.fetchpendingbooking');
 });
 
 Route::middleware(['auth', 'role:driver'])->prefix('driver/dashboard')->group(function () {

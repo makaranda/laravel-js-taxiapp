@@ -32,4 +32,32 @@ class RouteService
 
         return json_decode($response->getBody()->getContents(), true);
     }
+
+    // New reverseGeocode method
+    public function reverseGeocode($latitude, $longitude)
+    {
+        $apiKey = env('ORS_API_KEY');
+
+        // Send GET request to ORS reverse geocoding endpoint
+        $response = $this->client->get('/geocode/reverse', [
+            'headers' => [
+                'Authorization' => $apiKey,
+                'Content-Type'  => 'application/json',
+            ],
+            'query' => [
+                'point.lat' => $latitude,
+                'point.lon' => $longitude,
+            ],
+        ]);
+
+        // Parse the response
+        $data = json_decode($response->getBody()->getContents(), true);
+
+        // Return the first found address or null if not found
+        if (!empty($data['features'])) {
+            return $data['features'][0]['properties']['label'];
+        }
+
+        return null;
+    }
 }

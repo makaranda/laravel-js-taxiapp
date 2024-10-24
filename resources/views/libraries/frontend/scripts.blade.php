@@ -368,25 +368,26 @@ $(document).ready(function(){
             }
         });
     });
-    checkCurrentBooking();
-    function checkCurrentBooking() {
-        var checkUserUrl = '{{ route("booking.checkbooking") }}';
-        var csrfToken = '{{ csrf_token() }}';
+    // checkCurrentBooking();
+    // function checkCurrentBooking() {
 
-        $.ajax({
-            url: checkUserUrl,
-            type: 'POST',
-            dataType: 'json',
-            data: { action: 'checkuser', _token: csrfToken },
-            success: function(data) {
-                if (data.status == 1 && data.booking == 1) {
-                    $('#scroll-top2').removeClass('d-none');
-                    $('#customModal').modal('show');
-                }
-            }
-        });
+    //     var checkUserUrl = '{{ route("customer.fetchpendingbooking") }}';
+    //     var csrfToken = '{{ csrf_token() }}';
 
-    }
+    //     $.ajax({
+    //         url: checkUserUrl,
+    //         type: 'POST',
+    //         dataType: 'json',
+    //         data: { action: 'checkuser', _token: csrfToken },
+    //         success: function(data) {
+    //             if (data.status == 1 && data.booking == 1) {
+    //                 $('#scroll-top2').removeClass('d-none');
+    //                 $('#customModal').modal('show');
+    //             }
+    //         }
+    //     });
+
+    // }
 
 
 
