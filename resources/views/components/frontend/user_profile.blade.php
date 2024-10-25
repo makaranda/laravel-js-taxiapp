@@ -46,7 +46,7 @@
 <div class="user-profile-sidebar">
     <div class="user-profile-sidebar-top">
        <div class="user-profile-img">
-          <img src="{{ url('public/assets/img/account/user.png') }}" alt>
+          <img src="{{ url('public/assets/img/account/'.Auth::user()->image.'') }}" alt>
           <button type="button" class="profile-img-btn"><i class="far fa-camera"></i></button>
           <input type="file" class="profile-img-file">
        </div>

@@ -86,6 +86,10 @@
                         ordering: false,
                         paging: true
                     });
+            },
+            error: function(xhr, status, error) {
+                console.log("Error getting Categories ! \n", xhr, status, error);
+                //$('#overlay').hide();
             }
         });
     }

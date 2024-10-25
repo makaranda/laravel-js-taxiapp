@@ -53,10 +53,12 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer/dashboard')->grou
     Route::get('/profile', [CustomerDashboardController::class, 'customerProfile'])->name('customer.profile');
     Route::get('/booking', [CustomerDashboardController::class, 'customerBooking'])->name('customer.booking');
     Route::get('/cancel-booking', [CustomerDashboardController::class, 'customerCancelBooking'])->name('customer.cancelbooking');
+    Route::post('/cancel-booking-form', [CustomerDashboardController::class, 'customerCancelBookingForm'])->name('customer.cancelbookingform');
     Route::get('/payment-history', [CustomerDashboardController::class, 'customerPaymentHistory'])->name('customer.paymenthistory');
     Route::post('/update-profile', [CustomerDashboardController::class, 'customerUpdateProfile'])->name('customer.updateprofile');
     Route::post('/update-password', [CustomerDashboardController::class, 'customerUpdatePassword'])->name('customer.updatepassword');
     Route::get('/fetch-booking', [CustomerDashboardController::class, 'fetchCustomerBooking'])->name('customer.fetchcustomerbooking');
+    Route::get('/fetch-payment-history', [CustomerDashboardController::class, 'fetchPaymentHistory'])->name('customer.fetchpaymenthistory');
     Route::get('/fetch-cancel-booking', [CustomerDashboardController::class, 'fetchCancelBooking'])->name('customer.fetchcancelbooking');
     Route::get('/fetch-pending-booking', [CustomerDashboardController::class, 'fetchPedingBooking'])->name('customer.fetchpendingbooking');
 });

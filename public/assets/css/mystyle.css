@@ -275,3 +275,21 @@
     left: 10px;
     display: none;
 }
+
+button.profile-img-btn:hover {
+    scale: 1.1;
+    animation-timing-function: ease-out;
+}
+
+.select2-container--default .select2-selection--single {
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    height: 50px;
+    .select2-selection__rendered{
+        line-height: 50px;
+    }
+    .select2-selection__arrow{
+        height: 50px;
+    }
+}

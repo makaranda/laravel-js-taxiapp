@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Services\RouteService;
 
@@ -30,11 +31,13 @@ class CustomerDashboardController extends Controller
 
         $allUpcommingBooking = Bookings::where('status', 1)->where('user_id', $user_id)->where('pick_up_date',date('Y-m-d'))->whereIn('active', ['pending', 'active'])->count();
 
+        $getAllBookings = Bookings::where('status', 1)->where('user_id', $user_id)->get();
+
         $allTotalBooking = Bookings::where('status', 1)->where('user_id', $user_id)->count();
 
         $allCancelBooking = Bookings::where('status', 1)->where('user_id', $user_id)->whereIn('active',['cancel'])->count();
 
-        return view('pages.frontend.user_dashboard',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking'));
+        return view('pages.frontend.user_dashboard',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking','getAllBookings'));
     }
 
     public function customerBooking(){
@@ -53,10 +56,12 @@ class CustomerDashboardController extends Controller
         return view('pages.frontend.user_dashboard_booking',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking'));
     }
 
-    public function customerCancelBooking(){
+    public function customerPaymentHistory(){
         $user_id = Auth::user()->id;
         $allVehicleTypes = VehicleTypes::where('status', 1)->get();
         $allVehicleModels = VehicleModels::where('status', 1)->get();
+
+        $getAllBookings = Bookings::where('status', 1)->where('user_id', $user_id)->where('active','<>','cancel')->get();
 
         $allUpcommingBooking = Bookings::where('status', 1)->where('user_id', $user_id)->where('pick_up_date',date('Y-m-d'))->whereIn('active', ['pending', 'active'])->count();
 
@@ -66,7 +71,25 @@ class CustomerDashboardController extends Controller
 
         $allVehicleTypes = VehicleTypes::where('status', 1)->get();
         $allVehicleModels = VehicleModels::where('status', 1)->get();
-        return view('pages.frontend.user_dashboard_cancel_booking',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking'));
+        return view('pages.frontend.user_dashboard_payment_history',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking','getAllBookings'));
+    }
+
+    public function customerCancelBooking(){
+        $user_id = Auth::user()->id;
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        $allVehicleModels = VehicleModels::where('status', 1)->get();
+
+        $getAllBookings = Bookings::where('status', 1)->where('user_id', $user_id)->where('active','<>','cancel')->get();
+
+        $allUpcommingBooking = Bookings::where('status', 1)->where('user_id', $user_id)->where('pick_up_date',date('Y-m-d'))->whereIn('active', ['pending', 'active'])->count();
+
+        $allTotalBooking = Bookings::where('status', 1)->where('user_id', $user_id)->count();
+
+        $allCancelBooking = Bookings::where('status', 1)->where('user_id', $user_id)->whereIn('active',['cancel'])->count();
+
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        $allVehicleModels = VehicleModels::where('status', 1)->get();
+        return view('pages.frontend.user_dashboard_cancel_booking',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking','getAllBookings'));
     }
 
     public function customerProfile(){
@@ -83,6 +106,40 @@ class CustomerDashboardController extends Controller
         $allVehicleTypes = VehicleTypes::where('status', 1)->get();
         $allVehicleModels = VehicleModels::where('status', 1)->get();
         return view('pages.frontend.user_dashboard_profile',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking'));
+    }
+
+    public function customerCancelBookingForm(Request $request){
+        $validator = Validator::make($request->all(), [
+            'booking_id' => 'required|exists:bookings,id',
+            'reason' => 'required|string|max:255',
+            'remarks' => 'required|string|max:500'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'messageType' => 'error',
+                'message' => 'Validation failed: ' . implode(', ', $validator->errors()->all())
+            ], 422);
+        }
+
+        try {
+            // Find the booking and update fields
+            $booking = Bookings::find($request->booking_id);
+            $booking->reason = $request->reason;
+            $booking->remarks = $request->remarks;
+            $booking->status = 'cancel'; // Optional: Update status to cancelled
+            $booking->save();
+
+            return response()->json([
+                'messageType' => 'success',
+                'message' => 'Booking has been successfully cancelled.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'messageType' => 'error',
+                'message' => 'An error occurred while updating the booking. Please try again.'
+            ], 500);
+        }
     }
 
     public function customerUpdatePassword(Request $request)
@@ -204,7 +261,7 @@ class CustomerDashboardController extends Controller
     }
 
     public function fetchCustomerBooking(Request $request){
-        $allPendingBookings = Bookings::where('status', 1)->where('active', 'complete')->get();
+        $allPendingBookings = Bookings::where('status', 1)->whereIn('active', ['complete','pending','active','cancel'])->get();
         $fetchTable = '<table class="table text-nowrap">
                     <thead>
                         <tr>
@@ -243,6 +300,24 @@ class CustomerDashboardController extends Controller
             $address = '';
             $address = $this->routeService->reverseGeocode($latitude, $longitude);
 
+            switch ($pendingBooking->active) {
+                case 'complete':
+                    $statusClass = 'success';
+                    break;
+                case 'pending':
+                    $statusClass = 'primary';
+                    break;
+                case 'active':
+                    $statusClass = 'info';
+                    break;
+                case 'cancel':
+                    $statusClass = 'danger';
+                    break;
+                default:
+                    $statusClass = 'warning'; // fallback class if needed
+                    break;
+            }
+
             $fetchTable .='<tr>
                             <td>'. ($key + 1) .'</td>
                                 <td width="150px">
@@ -264,7 +339,7 @@ class CustomerDashboardController extends Controller
                                 '.$address.'
                             </td>
                             <td>Rs '.$pendingBooking->total_charged.'</td>
-                            <td><span class="badge badge-success text-capitalize">'.$pendingBooking->active.'</span></td>
+                            <td><span class="badge badge-'.$statusClass.' text-capitalize">'.$pendingBooking->active.'</span></td>
                             </tr>';
 
         }

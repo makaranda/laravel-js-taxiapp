@@ -103,7 +103,7 @@ class DriverDashboardController extends Controller
         foreach ($allPendingBookings as $key => $pendingBooking) {
 
             if($pendingBooking->driver_id){
-                $taxis_detail = Taxis::where('status',1)->where('user_id','=',$pendingBooking->driver_id)->first();
+                $taxis_detail = Taxis::where('status',1)->where('user_id',$pendingBooking->driver_id)->first();
                 $title = $taxis_detail->title;
                 $taxi_img = isset($taxis_detail->image) ? $taxis_detail->image : 'taxi_sample.png';
             }else{
