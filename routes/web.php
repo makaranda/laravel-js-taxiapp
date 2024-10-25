@@ -52,8 +52,12 @@ Route::middleware(['auth', 'role:customer'])->prefix('customer/dashboard')->grou
     Route::get('/', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
     Route::get('/profile', [CustomerDashboardController::class, 'customerProfile'])->name('customer.profile');
     Route::get('/booking', [CustomerDashboardController::class, 'customerBooking'])->name('customer.booking');
+    Route::get('/cancel-booking', [CustomerDashboardController::class, 'customerCancelBooking'])->name('customer.cancelbooking');
+    Route::get('/payment-history', [CustomerDashboardController::class, 'customerPaymentHistory'])->name('customer.paymenthistory');
     Route::post('/update-profile', [CustomerDashboardController::class, 'customerUpdateProfile'])->name('customer.updateprofile');
     Route::post('/update-password', [CustomerDashboardController::class, 'customerUpdatePassword'])->name('customer.updatepassword');
+    Route::get('/fetch-booking', [CustomerDashboardController::class, 'fetchCustomerBooking'])->name('customer.fetchcustomerbooking');
+    Route::get('/fetch-cancel-booking', [CustomerDashboardController::class, 'fetchCancelBooking'])->name('customer.fetchcancelbooking');
     Route::get('/fetch-pending-booking', [CustomerDashboardController::class, 'fetchPedingBooking'])->name('customer.fetchpendingbooking');
 });
 
@@ -61,6 +65,9 @@ Route::middleware(['auth', 'role:driver'])->prefix('driver/dashboard')->group(fu
     Route::get('/', [DriverDashboardController::class, 'index'])->name('driver.dashboard');
     Route::get('/profile', [DriverDashboardController::class, 'driverProfile'])->name('driver.profile');
     Route::get('/booking', [DriverDashboardController::class, 'driverBooking'])->name('driver.booking');
+    Route::post('/update-profile', [DriverDashboardController::class, 'driverUpdateProfile'])->name('driver.updateprofile');
+    Route::post('/update-password', [DriverDashboardController::class, 'driverUpdatePassword'])->name('driver.updatepassword');
+    Route::get('/fetch-pending-booking', [DriverDashboardController::class, 'fetchPedingBooking'])->name('driver.fetchdriverpendingbooking');
 });
 
 Route::middleware(['auth', 'role:staff'])->prefix('staff/dashboard')->group(function () {

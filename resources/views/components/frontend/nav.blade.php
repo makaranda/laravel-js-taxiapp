@@ -74,7 +74,7 @@
                             case 'customer':
                                 $redirectUrl = route('customer.dashboard');
                                 $profile = route('customer.profile');
-                                $booking = route('customer.profile');
+                                $booking = route('customer.booking');
                                 $setting = route('customer.profile');
                                 break;
                             case 'driver':

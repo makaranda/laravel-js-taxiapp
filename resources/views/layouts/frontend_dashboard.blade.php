@@ -14,12 +14,21 @@
     <div id="overlay" style="display: block;">
         <div class="loader"></div>
     </div>
+    @php
+        if(Auth::user()->role == 'customer'){
+            $personTitle = 'Customer';
+            $homeRoute = route('customer.dashboard');
+        }else{
+            $personTitle = 'Driver';
+            $homeRoute = route('driver.dashboard');
+        }
+    @endphp
     <div class="site-breadcrumb" style="background: url({{ url('public/assets/img/breadcrumb/01.jpg') }})">
         <div class="container">
-           <h2 class="breadcrumb-title">Customer Dashboard</h2>
+           <h2 class="breadcrumb-title">{{ $personTitle }} Dashboard</h2>
            <ul class="breadcrumb-menu">
-              <li><a href="{{ route('customer.dashboard') }}">Home</a></li>
-              <li class="active">Customer Dashboard</li>
+              <li><a href="{{ $homeRoute }}">Home</a></li>
+              <li class="active">{{ $personTitle }} Dashboard</li>
            </ul>
         </div>
      </div>

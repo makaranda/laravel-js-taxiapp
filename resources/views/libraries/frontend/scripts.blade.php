@@ -15,7 +15,8 @@
 <script src="{{ url('public/assets/js/jquery.redirect.js')}}"></script>
 <script src="{{ url('public/assets/js/parsley.js')}}"></script>
 <script src="{{ url('public/assets/js/select2.min.js')}}"></script>
-
+{{-- <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script> --}}
+<script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
 
 {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/polyline/1.1.1/polyline.js"></script> --}}
 {{-- <script src="https://unpkg.com/@mapbox/polyline@1.1.1/lib/polyline.js"></script> --}}

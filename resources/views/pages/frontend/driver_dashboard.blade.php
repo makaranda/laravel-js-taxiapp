@@ -63,7 +63,7 @@
 <script>
     fetchPendingBooking();
     function fetchPendingBooking(){
-        var checkUserUrl = '{{ route("customer.fetchpendingbooking") }}';
+        var checkUserUrl = '{{ route("driver.fetchdriverpendingbooking") }}';
         var csrfToken = '{{ csrf_token() }}';
 
         $.ajax({
@@ -72,20 +72,10 @@
             //dataType: 'json',
             data: { action: 'checkuser', _token: csrfToken },
             success: function(data) {
-                //console.log(data);
+                console.log(data);
                 //if (data.pending_booking) {
                     $('#pendingBooking').html(data);
                 //}
-                    // Destroy any existing DataTable instances on this element
-                    if ($.fn.DataTable.isDataTable('.table')) {
-                        $('.table').DataTable().destroy();
-                    }
-                    // Initialize DataTable after inserting the data
-                    $('.table').DataTable({
-                        info: false,
-                        ordering: false,
-                        paging: true
-                    });
             }
         });
     }

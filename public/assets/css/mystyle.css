@@ -153,6 +153,12 @@
     }
 }
 
+.table-list-info a {
+    display: block;
+    align-items: center;
+    gap: 10px;
+}
+
 .theme-btn3 {
     font-size: 14px;
     color: #fff;
