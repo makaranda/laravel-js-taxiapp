@@ -68,7 +68,7 @@ class LoginController extends Controller
                     break;
                 default:
                     // Invalid role; log out the user and return an error message
-                    Auth::logout();
+                    //Auth::logout();
                     return response()->json([
                         'message' => 'Invalid role for this user. Please contact support.',
                         'messageType' => 'error',

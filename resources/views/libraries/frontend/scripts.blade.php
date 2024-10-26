@@ -287,6 +287,9 @@ $(document).ready(function(){
                                             console.log(data);
                                             $('#showModalDestances').text(data.distancekm+'km');
                                             $('#showModalCharge').text(data.totalCharged);
+                                        },
+                                        error: function(xhr, status, error) {
+                                            console.error('Error:', error,status,xhr);
                                         }
                                     });
                                     try {
@@ -371,26 +374,26 @@ $(document).ready(function(){
             }
         });
     });
-    // checkCurrentBooking();
-    // function checkCurrentBooking() {
+    checkCurrentBooking();
+    function checkCurrentBooking() {
 
-    //     var checkUserUrl = '{{ route("customer.fetchpendingbooking") }}';
-    //     var csrfToken = '{{ csrf_token() }}';
+        var checkUserUrl = '{{ route("booking.checkcurrentbooking") }}';
+        var csrfToken = '{{ csrf_token() }}';
 
-    //     $.ajax({
-    //         url: checkUserUrl,
-    //         type: 'POST',
-    //         dataType: 'json',
-    //         data: { action: 'checkuser', _token: csrfToken },
-    //         success: function(data) {
-    //             if (data.status == 1 && data.booking == 1) {
-    //                 $('#scroll-top2').removeClass('d-none');
-    //                 $('#customModal').modal('show');
-    //             }
-    //         }
-    //     });
+        $.ajax({
+            url: checkUserUrl,
+            type: 'GET',
+            dataType: 'json',
+            data: { action: 'checkuser', _token: csrfToken },
+            success: function(data) {
+                if (data.status == 1 && data.booking == 1) {
+                    $('#scroll-top2').removeClass('d-none');
+                    $('#customModal').modal('show');
+                }
+            }
+        });
 
-    // }
+    }
 
 
 

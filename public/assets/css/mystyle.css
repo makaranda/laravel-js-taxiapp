@@ -293,3 +293,12 @@ button.profile-img-btn:hover {
         height: 50px;
     }
 }
+
+.nav-right-account .dropdown-menu {
+    border: none;
+    min-width: 200px;
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+    z-index: 999999;
+    position: absolute;
+}

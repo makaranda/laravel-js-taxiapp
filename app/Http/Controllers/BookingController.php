@@ -223,7 +223,7 @@ class BookingController extends Controller
 
                     } else {
                         // If the role doesn't match, log the user out and return an error
-                        Auth::logout();
+                        //Auth::logout();
                         $status = 0;
                         $messageType = 'error';
                         $message = 'You do not have access to this system.';
@@ -282,6 +282,7 @@ class BookingController extends Controller
         $distancemeeter = $request->distancekm;
         $distancekm = $request->distancekm;
         $totalCharged = 0;
+        $vehicle_id = 0;
         $map_booking_id = $request->map_booking_id ?? session('booking_id');
         if (Auth::check()) {
             $checkBookings = Bookings::where('status', 1)
@@ -289,10 +290,15 @@ class BookingController extends Controller
                                     ->whereIn('active', ['pending', 'active'])
                                     ->where('pick_up_date', date('Y-m-d'))
                                     ->first();
-            $vehicle_id = $checkBookings->vehicle_type;
-            $allVehicleTypes = VehicleTypes::where('status', 1)->where('id',$vehicle_id)->first();
-            $cost_perkm = $allVehicleTypes->perkm_charge;
+            $vehicle_id = $checkBookings->vehicle_type ?? 0;
+            if($vehicle_id){
+                $allVehicleTypes = VehicleTypes::where('status', 1)->where('id',$vehicle_id)->first();
+                $cost_perkm = $allVehicleTypes->perkm_charge;
+            }else{
+                $cost_perkm = 0;
+            }
             $totalCharged = $cost_perkm * $distancekm;
+
             Bookings::where('status', 1)
                     ->where('id',$map_booking_id)
                     ->update([
@@ -302,13 +308,42 @@ class BookingController extends Controller
             $responseData = [
                 'distancekm' => $distancekm,
                 'totalCharged' => $totalCharged,
+                'check_data' => $vehicle_id,
             ];
         }else{
             $responseData = [
                 'distancekm' => $distancekm,
                 'totalCharged' => $totalCharged,
+                'check_data' => $vehicle_id,
             ];
         }
+        return response()->json($responseData);
+    }
+
+    public function checkCurrentBooking(Request $request){
+
+        if (Auth::check()) {
+            $user_id = Auth::id(); // Get the authenticated user's ID
+            $status = 1;
+            $checkBookings = Bookings::where('status', 1)
+                         ->where('user_id', $user_id)
+                         ->whereIn('active', ['pending', 'active'])
+                         ->whereDate('pick_up_date', date('Y-m-d'))
+                         ->first();        // User is authenticated
+        } else {
+            $user_id = null;
+            $status = 0;
+            $checkBookings = null;           // User is not authenticated
+        }
+
+        $booking = isset($checkBookings) ? 1 : 0;
+
+        $responseData = [
+            'status' => $status,
+            'booking' => $booking,
+        ];
+
+        // Return the response as JSON
         return response()->json($responseData);
     }
 

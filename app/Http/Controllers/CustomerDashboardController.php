@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Services\RouteService;
 
+use Illuminate\Support\Facades\Session;
+
 use App\Models\Bookings;
 use App\Models\Taxis;
 use App\Models\VehicleTypes;
@@ -111,9 +113,10 @@ class CustomerDashboardController extends Controller
     public function customerCancelBookingForm(Request $request){
         $validator = Validator::make($request->all(), [
             'booking_id' => 'required|exists:bookings,id',
-            'reason' => 'required|string|max:255',
-            'remarks' => 'required|string|max:500'
+            'choose_reason' => 'required|string|max:255',
+            'comments' => 'required|string|max:500'
         ]);
+        //booking_id choose_reason comments
 
         if ($validator->fails()) {
             return response()->json([
@@ -125,9 +128,9 @@ class CustomerDashboardController extends Controller
         try {
             // Find the booking and update fields
             $booking = Bookings::find($request->booking_id);
-            $booking->reason = $request->reason;
-            $booking->remarks = $request->remarks;
-            $booking->status = 'cancel'; // Optional: Update status to cancelled
+            $booking->reason = $request->choose_reason;
+            $booking->remarks = $request->comments;
+            $booking->active = 'cancel'; // Optional: Update status to cancelled
             $booking->save();
 
             return response()->json([
@@ -189,7 +192,7 @@ class CustomerDashboardController extends Controller
         ]);
     }
 
-    public function fetchCancelBooking(Request $request){
+    public function fetchPaymentHistory(Request $request){
         $allPendingBookings = Bookings::where('status', 1)->where('active', 'cancel')->get();
         $fetchTable = '<table class="table text-nowrap">
                     <thead>
@@ -227,7 +230,7 @@ class CustomerDashboardController extends Controller
 
             list($latitude, $longitude) = explode(',', $pendingBooking->pick_up_location);
             $address = '';
-            $address = $this->routeService->reverseGeocode($latitude, $longitude);
+            //$address = $this->routeService->reverseGeocode($latitude, $longitude);
 
             $fetchTable .='<tr>
                             <td>'. ($key + 1) .'</td>
@@ -268,7 +271,7 @@ class CustomerDashboardController extends Controller
                             <th>#</th>
                             <th width="150px">Cab Info</th>
                             <th>Journey Date</th>
-                            <th width="150px">Drop Off Location</th>
+                            <th width="150px">Distance</th>
                             <th>Price</th>
                             <th>Status</th>
                         </tr>
@@ -298,7 +301,7 @@ class CustomerDashboardController extends Controller
 
             list($latitude, $longitude) = explode(',', $pendingBooking->pick_up_location);
             $address = '';
-            $address = $this->routeService->reverseGeocode($latitude, $longitude);
+            //$address = $this->routeService->reverseGeocode($latitude, $longitude);
 
             switch ($pendingBooking->active) {
                 case 'complete':
@@ -336,7 +339,7 @@ class CustomerDashboardController extends Controller
                             <p>'.$pickupTime.'</p>
                             </td>
                             <td width="150px">
-                                '.$address.'
+                                '.$pendingBooking->total_km.' km
                             </td>
                             <td>Rs '.$pendingBooking->total_charged.'</td>
                             <td><span class="badge badge-'.$statusClass.' text-capitalize">'.$pendingBooking->active.'</span></td>
@@ -357,7 +360,7 @@ class CustomerDashboardController extends Controller
                             <th>#</th>
                             <th width="150px">Cab Info</th>
                             <th>Journey Date</th>
-                            <th width="150px">Drop Off Location</th>
+                            <th width="150px">Distance</th>
                             <th>Price</th>
                             <th>Status</th>
                         </tr>
@@ -387,8 +390,10 @@ class CustomerDashboardController extends Controller
 
             list($latitude, $longitude) = explode(',', $pendingBooking->pick_up_location);
             $address = '';
-            $address = $this->routeService->reverseGeocode($latitude, $longitude);
-
+            //$address = $this->routeService->reverseGeocode($latitude, $longitude);
+            // '.$address.'/
+            // '.$latitude.'/
+            // '.$longitude.'
             $fetchTable .='<tr>
                             <td>'. ($key + 1) .'</td>
                                 <td width="150px">
@@ -407,7 +412,7 @@ class CustomerDashboardController extends Controller
                             <p>'.$pickupTime.'</p>
                             </td>
                             <td width="150px">
-                                '.$address.'
+                                '.$pendingBooking->total_km.' km
                             </td>
                             <td>Rs '.$pendingBooking->total_charged.'</td>
                             <td><span class="badge badge-primary text-capitalize">'.$pendingBooking->active.'</span></td>

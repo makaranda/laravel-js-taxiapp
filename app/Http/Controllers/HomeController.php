@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\VehicleModels;
 use App\Models\VehicleTypes;
 
+use Illuminate\Support\Facades\Session;
+
 class HomeController extends Controller
 {
     public function index()

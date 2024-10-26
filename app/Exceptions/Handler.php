@@ -27,4 +27,13 @@ class Handler extends ExceptionHandler
             //
         });
     }
+
+    public function render($request, Throwable $exception)
+    {
+        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\HttpException && $exception->getStatusCode() === 500) {
+            return redirect()->back()->withErrors('An unexpected error occurred. Please try again.');
+        }
+
+        return parent::render($request, $exception);
+    }
 }

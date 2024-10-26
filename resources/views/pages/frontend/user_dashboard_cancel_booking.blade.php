@@ -35,7 +35,7 @@
                       <div class="col-md-12">
                          <div class="form-group">
                             <label>Your Comment</label>
-                            <textarea class="form-control" rows="3" placeholder="Write Comment" name="coments" id="comments"></textarea>
+                            <textarea class="form-control" rows="3" placeholder="Write Comment" name="comments" id="comments"></textarea>
                          </div>
                       </div>
                    </div>
@@ -129,36 +129,7 @@ $(document).ready(function() {
         });
     });
 
-    fetchCancelBooking();
-    function fetchCancelBooking(){
-        var checkUserUrl = '{{ route("customer.fetchcancelbooking") }}';
-        var csrfToken = '{{ csrf_token() }}';
 
-        $.ajax({
-            url: checkUserUrl,
-            type: 'GET',
-            //dataType: 'json',
-            data: { action: 'checkuser', _token: csrfToken },
-            success: function(data) {
-                //console.log(data);
-                //if (data.pending_booking) {
-                    $('#cancel_booking').html(data);
-
-                    // Destroy any existing DataTable instances on this element
-                    if ($.fn.DataTable.isDataTable('.table')) {
-                            $('.table').DataTable().destroy();
-                        }
-
-                    // Initialize DataTable after inserting the data
-                    $('.table').DataTable({
-                        info: false,
-                        ordering: false,
-                        paging: true
-                    });
-                //}
-            }
-        });
-    }
 });
 </script>
 

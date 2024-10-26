@@ -36,6 +36,7 @@ Route::post('booking-frontpage', [BookingController::class, 'frontBooking'])->na
 Route::post('booking-checkuser', [BookingController::class, 'frontCheckUser'])->name('booking.checkuser');
 Route::post('booking-loginuser', [BookingController::class, 'frontLoginUser'])->name('booking.loginuser');
 Route::post('booking-check-booking', [BookingController::class, 'frontCheckBooking'])->name('booking.checkbooking');
+Route::get('check-current-booking', [BookingController::class, 'checkCurrentBooking'])->name('booking.checkcurrentbooking');
 Route::get('booking-update-price-distance', [BookingController::class, 'updatePriceDistance'])->name('booking.updatepricedistance');
 Route::post('booking-get-route', [BookingController::class, 'frontGetRoute'])->name('booking.getroute');
 Route::post('booking-cancel', [BookingController::class, 'bookingCancel'])->name('booking.cancel');

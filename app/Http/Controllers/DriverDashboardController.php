@@ -10,6 +10,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Services\RouteService;
 
+use Illuminate\Support\Facades\Session;
+
 use App\Models\Bookings;
 use App\Models\Taxis;
 use App\Models\VehicleTypes;

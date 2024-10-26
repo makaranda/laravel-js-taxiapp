@@ -71,7 +71,7 @@
             //dataType: 'json',
             data: { action: 'checkuser', _token: csrfToken },
             success: function(data) {
-                console.log(data);
+                //console.log(data);
                 //if (data.pending_booking) {
                     $('#booking').html(data);
                 //}
