@@ -111,38 +111,43 @@ class CustomerDashboardController extends Controller
     }
 
     public function customerCancelBookingForm(Request $request){
+        $booking = Bookings::find($request->booking_id);
+        $messageType = '';
+        $message = '';
+
         $validator = Validator::make($request->all(), [
             'booking_id' => 'required|exists:bookings,id',
-            'choose_reason' => 'required|string|max:255',
-            'comments' => 'required|string|max:500'
+            'choose_reason' => 'required',
+            'comments' => 'required'
         ]);
         //booking_id choose_reason comments
 
         if ($validator->fails()) {
-            return response()->json([
-                'messageType' => 'error',
-                'message' => 'Validation failed: ' . implode(', ', $validator->errors()->all())
-            ], 422);
+            $messageType = 'error';
+            $message = 'Validation failed: ' . implode(', ', $validator->errors()->all());
         }
 
         try {
-            // Find the booking and update fields
-            $booking = Bookings::find($request->booking_id);
-            $booking->reason = $request->choose_reason;
-            $booking->remarks = $request->comments;
-            $booking->active = 'cancel'; // Optional: Update status to cancelled
-            $booking->save();
+            $userData = [
+                'reason' => $request->choose_reason,
+                'remarks' => $request->comments,
+                'active' => 'cancel',
+            ];
 
-            return response()->json([
-                'messageType' => 'success',
-                'message' => 'Booking has been successfully cancelled.'
-            ]);
+            $booking->update($userData);
+            $messageType = 'success';
+            $message = 'Booking has been successfully cancelled.';
+
         } catch (\Exception $e) {
-            return response()->json([
-                'messageType' => 'error',
-                'message' => 'An error occurred while updating the booking. Please try again.'
-            ], 500);
+            $messageType = 'error';
+            $message = 'An error occurred while saving the user data: ' . $e->getMessage();
         }
+
+        $responseData = [
+            'messageType' => $messageType,
+            'message' => $message
+        ];
+        return response()->json($responseData);
     }
 
     public function customerUpdatePassword(Request $request)
