@@ -285,8 +285,59 @@ $(document).ready(function(){
                                         },
                                         success: function(data) {
                                             console.log(data);
+                                            console.log('Check Data : ',data.check_data);
                                             $('#showModalDestances').text(data.distancekm+'km');
                                             $('#showModalCharge').text(data.totalCharged);
+
+
+                                            if (data.drivers && Array.isArray(data.drivers)) {
+                                                data.drivers.forEach(function(driver) {
+                                                    // Split the location string into latitude and longitude
+                                                    var locationParts = driver.location.split(',');
+
+                                                    // Check if the split operation was successful
+                                                    if (locationParts.length === 2) {
+                                                        var lat = parseFloat(locationParts[0].trim());
+                                                        var lng = parseFloat(locationParts[1].trim());
+
+                                                        if (!isNaN(lat) && !isNaN(lng)) {
+                                                            console.log('Lati : ',lat);
+                                                            console.log('Long : ',lng);
+
+                                                            var driverPopupContent = `
+                                                                <div>
+                                                                    <h6><strong>${driver.name}</strong></h6>
+                                                                    <p><strong><a href="tel:${driver.phone}">${driver.phone}</a></strong></p>
+                                                                </div>`;
+
+                                                            var driverIcon = L.icon({
+                                                                iconUrl: `{{ url('public/assets/img/icon/vehicle-types/') }}/${driver.map_icon}`,
+                                                                iconSize: [38, 45],
+                                                                iconAnchor: [19, 45],
+                                                                popupAnchor: [0, -45],
+                                                                className: 'driver-vehicle'
+                                                            });
+
+                                                            var driverMarker = L.marker([lat, lng], { icon: driverIcon }).addTo(map_location);
+                                                            driverMarker.bindPopup(driverPopupContent, { closeButton: true, autoClose: false, closeOnClick: false, offset: [0, 0] });
+                                                            //var marker = L.marker([lat, lng]).addTo(map_location);
+
+                                                            // Bind a popup with the driver's name and distance
+                                                            // marker.bindPopup(`
+                                                            //     <strong>${driver.name}</strong><br>
+                                                            //     Distance: ${driver.distance ? driver.distance.toFixed(2) : "Unknown"} meters
+                                                            // `);
+                                                        } else {
+                                                            console.error("Invalid latitude or longitude values for driver:", driver);
+                                                        }
+                                                    } else {
+                                                        console.error("Invalid location format for driver:", driver);
+                                                    }
+                                                });
+                                            } else {
+                                                console.error("No drivers found or data.drivers is not an array");
+                                            }
+
                                         },
                                         error: function(xhr, status, error) {
                                             console.error('Error:', error,status,xhr);

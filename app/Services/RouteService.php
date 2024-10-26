@@ -2,7 +2,11 @@
 
 namespace App\Services;
 
+
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class RouteService
 {
@@ -59,5 +63,39 @@ class RouteService
         }
 
         return null;
+    }
+
+    public function getNearbyDrivers($pickupLatitude, $pickupLongitude, $radius = 1000)
+    {
+        // $drivers = DB::table('users')
+        //             ->select('id', 'name', 'phone', 'email', 'location','taxi_id')
+        //             ->selectRaw("
+        //                 (6371000 * acos(
+        //                     cos(radians(?)) * cos(radians(CAST(SUBSTRING_INDEX(location, ',', 1) AS DECIMAL(10, 6)))) *
+        //                     cos(radians(CAST(SUBSTRING_INDEX(location, ',', -1) AS DECIMAL(10, 6))) - radians(?)) +
+        //                     sin(radians(?)) * sin(radians(CAST(SUBSTRING_INDEX(location, ',', 1) AS DECIMAL(10, 6))))
+        //                 )) AS distance", [$pickupLatitude, $pickupLongitude, $pickupLatitude])
+        //             ->where('role', 'driver')
+        //             ->havingRaw('distance <= ?', [$radius])
+        //             ->orderBy('distance')
+        //             ->get();
+
+        $drivers = DB::table('users')
+                    ->select('users.id', 'users.name', 'users.phone', 'users.email', 'users.location', 'users.taxi_id', 'taxis.type', 'vehicle_types.map_icon')
+                    ->selectRaw("
+                        (6371000 * acos(
+                            cos(radians(?)) * cos(radians(CAST(SUBSTRING_INDEX(users.location, ',', 1) AS DECIMAL(10, 6)))) *
+                            cos(radians(CAST(SUBSTRING_INDEX(users.location, ',', -1) AS DECIMAL(10, 6))) - radians(?)) +
+                            sin(radians(?)) * sin(radians(CAST(SUBSTRING_INDEX(users.location, ',', 1) AS DECIMAL(10, 6))))
+                        )) AS distance", [$pickupLatitude, $pickupLongitude, $pickupLatitude])
+                    ->where('users.role', 'driver')
+                    ->join('taxis', 'users.taxi_id', '=', 'taxis.id')
+                    ->join('vehicle_types', 'taxis.type', '=', 'vehicle_types.id')
+                    ->havingRaw('distance <= ?', [$radius])
+                    ->orderBy('distance')
+                    ->get();
+
+        return $drivers;
+
     }
 }

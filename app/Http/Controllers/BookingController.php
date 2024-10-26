@@ -151,11 +151,13 @@ class BookingController extends Controller
                     $addDatas->fill($proData);
                     $addDatas->save();
                     $insertedId = $addDatas->id;
+                    session()->put('booking_id', $insertedId);
+                    //session(['booking_id' => $insertedId]);
 
                     $messageType = 'success';
-                    $message = 'You have successfully Added the Booking successfully..!!';
+                    $message = 'You have successfully Added the Booking successfully..!! ' .$insertedId;
                     $inserted_id = $insertedId;
-                    session(['booking_id' => $insertedId]);
+
                 }else{
                     $messageType = 'error';
                     $message = 'Your Phone Number is Not Verified Please Try again..!!';
@@ -291,30 +293,39 @@ class BookingController extends Controller
                                     ->where('pick_up_date', date('Y-m-d'))
                                     ->first();
             $vehicle_id = $checkBookings->vehicle_type ?? 0;
+
             if($vehicle_id){
                 $allVehicleTypes = VehicleTypes::where('status', 1)->where('id',$vehicle_id)->first();
                 $cost_perkm = $allVehicleTypes->perkm_charge;
             }else{
                 $cost_perkm = 0;
             }
-            $totalCharged = $cost_perkm * $distancekm;
+            $pick_up_location = $checkBookings->pick_up_location;
+            list($pickupLatitude, $pickupLongitude) = explode(',', $pick_up_location);
+            $nearbyDrivers = $this->routeService->getNearbyDrivers($pickupLatitude, $pickupLongitude);
 
+            $totalCharged = $cost_perkm * $distancekm;
+            if (!session()->has('user_id')) {
+                session()->put('user_id', $checkBookings->user_id);
+            }
             Bookings::where('status', 1)
                     ->where('id',$map_booking_id)
                     ->update([
                         'total_charged' => $totalCharged,
-                        'total_km' => $distancekm
+                        'total_km' => $distancekm,
                     ]);
             $responseData = [
                 'distancekm' => $distancekm,
                 'totalCharged' => $totalCharged,
                 'check_data' => $vehicle_id,
+                'drivers' => $nearbyDrivers,
             ];
         }else{
             $responseData = [
                 'distancekm' => $distancekm,
                 'totalCharged' => $totalCharged,
                 'check_data' => $vehicle_id,
+                'drivers' => 0,
             ];
         }
         return response()->json($responseData);
@@ -367,10 +378,12 @@ class BookingController extends Controller
                                     ->first();
             }else{
                 $checkBookings = Bookings::where('status', 1)
+                                    ->where('user_id', $user_id)
                                     ->whereIn('active', ['pending', 'active'])
                                     ->where('pick_up_date', date('Y-m-d'))
                                     ->first();
             }
+
 
             if ($checkBookings) {
                 $booking = 1;
@@ -385,12 +398,20 @@ class BookingController extends Controller
         } else {
             $status = 0;
         }
-
+        if (!session()->has('booking_id')) {
+            if (isset($checkBookings->id) && $checkBookings->id > 0) {
+                session()->put('booking_id', $checkBookings->id);
+            } else {
+                session()->put('booking_id', 0);
+            }
+        }
         $responseData = [
             'message' => $message,
             'messageType' => $messageType,
             'status' => $status,
             'booking' => $booking,
+            'booking_id' => $checkBookings->id ?? 0,
+            'user_id' => $checkBookings->user_id ?? 0,
             'pick_up_location' => $pick_up_location,
             'drop_off_location' => $drop_off_location,
             'customer_name' => Auth::user()->name,
