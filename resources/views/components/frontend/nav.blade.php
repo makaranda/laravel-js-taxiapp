@@ -108,7 +108,7 @@
                                 @if ($booking)
                                 <li><a class="dropdown-item" href="{{ $booking }}"><i class="far fa-layer-group"></i> My Booking</a></li>
                                 @endif
-                                <li><a class="dropdown-item" href="{{ $setting }}"><i class="far fa-cog"></i> Settings</a></li>
+                                {{-- <li><a class="dropdown-item" href="{{ $setting }}"><i class="far fa-cog"></i> Settings</a></li> --}}
                                 <li><a class="dropdown-item logoutBtn" href="#" id="logoutBtn"><i class="far fa-sign-out"></i> Log Out</a></li>
                             </ul>
                         </div>
