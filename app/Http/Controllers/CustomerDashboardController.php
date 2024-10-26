@@ -15,6 +15,8 @@ use App\Services\RouteService;
 use Illuminate\Support\Facades\Session;
 
 use App\Models\Bookings;
+use App\Models\Reservation;
+use App\Models\Payments;
 use App\Models\Taxis;
 use App\Models\VehicleTypes;
 use App\Models\VehicleModels;
@@ -198,14 +200,15 @@ class CustomerDashboardController extends Controller
     }
 
     public function fetchPaymentHistory(Request $request){
-        $allPendingBookings = Bookings::where('status', 1)->where('active', 'cancel')->get();
+        $paymentsPayments = Payments::where('status', 1)->where('active', 'active')->get();
         $fetchTable = '<table class="table text-nowrap">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th width="150px">Cab Info</th>
-                            <th>Journey Date</th>
-                            <th width="150px">Drop Off Location</th>
+                            <th width="150px">Booking ID</th>
+                            <th>Booking Date</th>
+                            <th>Booking Time</th>
+                            <th width="150px">Destance</th>
                             <th>Price</th>
                             <th>Status</th>
                         </tr>
@@ -213,52 +216,53 @@ class CustomerDashboardController extends Controller
                     <tbody>';
 
 
-        foreach ($allPendingBookings as $key => $pendingBooking) {
+        foreach ($paymentsPayments as $key => $paymentsPayment) {
+            $reservationsDetails = Reservation::where('id', $paymentsPayment->reservation_id)->where('status', 1)->where('active', 'active')->first();
+            $bookingDetails = Bookings::where('id', $reservationsDetails->booking_id)->where('status', 1)->where('active', 'complete')->first();
+            $booking_id = $bookingDetails->id ?? 0;
 
-            if($pendingBooking->driver_id){
-                $taxis_detail = Taxis::where('status',1)->where('user_id','=',$pendingBooking->driver_id)->first();
-                $title = $taxis_detail->title;
-                $taxi_img = isset($taxis_detail->image) ? $taxis_detail->image : 'taxi_sample.png';
-            }else{
-                $title = '';
-                $taxi_img = 'taxi_sample.png';
-            }
+            $time =  $bookingDetails->pick_up_time ?? '';
+            $date =  $bookingDetails->pick_up_date ?? '';
 
-
-            $booking_id = $pendingBooking->id;
-
-            $time = $pendingBooking->pick_up_date;
             $pickupTime = date("h:i A", strtotime($time));
-            $date = $pendingBooking->pick_up_date;
             $pickupDate = date("d F, Y", strtotime($date));
 
-
-            list($latitude, $longitude) = explode(',', $pendingBooking->pick_up_location);
             $address = '';
             //$address = $this->routeService->reverseGeocode($latitude, $longitude);
+            switch ($paymentsPayment->active) {
+                case 'active':
+                    $statusClass = 'success';
+                    $statusTitle = 'Completed';
+                    break;
+                case 'inactive':
+                    $statusClass = 'danger';
+                    $statusTitle = 'Incomplete';
+                    break;
+                case 'pending':
+                    $statusClass = 'info';
+                    $statusTitle = 'Pending';
+                    break;
+                case 'cancel':
+                    $statusClass = 'danger';
+                    $statusTitle = 'Cancel';
+                    break;
+                default:
+                    $statusClass = 'warning';
+                    $statusTitle = 'Completed';
+                    break;
+            }
 
             $fetchTable .='<tr>
                             <td>'. ($key + 1) .'</td>
-                                <td width="150px">
-                                <div class="table-list-info">
-                                <a href="#">
-                                    <img src="'.url('public/assets/img/taxi/'.$taxi_img.'').'" alt>
-                                    <div class="table-list-content">
-                                        <h6>'.$title.'</h6>
-                                        <span>Booking ID: #'.$pendingBooking->id.'</span>
-                                    </div>
-                                </a>
-                                </div>
+                            <td width="150px"> '.$booking_id.'
                             </td>
-                            <td>
-                            <span>'.$pickupDate.'</span>
-                            <p>'.$pickupTime.'</p>
-                            </td>
+                            <td>'.$pickupDate.'</td>
+                            <td>'.$pickupTime.'</td>
                             <td width="150px">
-                                '.$address.'
+                               '.$paymentsPayment->distance.' km
                             </td>
-                            <td>Rs '.$pendingBooking->total_charged.'</td>
-                            <td><span class="badge badge-danger text-capitalize">'.$pendingBooking->active.'</span></td>
+                            <td>Rs '.$paymentsPayment->total_amount.'</td>
+                            <td><span class="badge badge-'.$statusClass.' text-capitalize">'.$statusTitle.'</span></td>
                             </tr>';
 
         }
