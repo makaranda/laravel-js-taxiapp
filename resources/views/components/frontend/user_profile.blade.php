@@ -21,9 +21,9 @@
         case 'driver':
             $redirectUrl = route('driver.dashboard');
             $profile = route('driver.profile');
-            $booking = route('customer.profile');
-            $cancelbooking = route('customer.profile');
-            $paymenthistory = route('customer.profile');
+            $booking = route('driver.booking');
+            $cancelbooking = route('driver.cancelbooking');
+            $paymenthistory = route('driver.paymenthistory');
             $setting = route('customer.profile');
             break;
         case 'staff':
@@ -50,7 +50,8 @@
           <button type="button" class="profile-img-btn"><i class="far fa-camera"></i></button>
           <input type="file" class="profile-img-file">
        </div>
-       <h5>{{ $log_user->name }} {{ $log_user->role }}</h5>
+       <h5>{{ $log_user->name }} </h5>
+       {{-- {{ $log_user->role }} --}}
        <p><a href="mailto:{{ $log_user->email }}" class="__cf_email__">{{ $log_user->email }}</a></p>
     </div>
     <ul class="user-profile-sidebar-list">

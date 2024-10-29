@@ -15,14 +15,27 @@
         <div class="loader"></div>
     </div>
     @php
+    if (Auth::check()) {
         if(Auth::user()->role == 'customer'){
             $personTitle = 'Customer';
+            $userLoginType = 'customer';
             $homeRoute = route('customer.dashboard');
-        }else{
+        }else if(Auth::user()->role == 'driver'){
             $personTitle = 'Driver';
+            $userLoginType = 'driver';
             $homeRoute = route('driver.dashboard');
+        }else{
+            $personTitle = '';
+            $homeRoute = '';
+            $userLoginType = '';
         }
+    }else{
+        $personTitle = '';
+        $homeRoute = '';
+        $userLoginType = '';
+    }
     @endphp
+    <input type="hidden" name="user_login_type" id="user_login_type" value="{{ $userLoginType }}">
     <div class="site-breadcrumb" style="background: url({{ url('public/assets/img/breadcrumb/01.jpg') }})">
         <div class="container">
            <h2 class="breadcrumb-title">{{ $personTitle }} Dashboard</h2>

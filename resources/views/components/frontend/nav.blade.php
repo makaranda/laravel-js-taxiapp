@@ -21,10 +21,13 @@
                 </div>
              </div>
              <div class="header-top-right">
-                <div class="header-top-link">
-                   <a href="{{ route('login.login') }}"><i class="far fa-arrow-right-to-bracket"></i> Login</a>
-                   <a href="{{ route('register.index') }}"><i class="far fa-user-vneck"></i> Register</a>
-                </div>
+                @if(!Auth::check())
+                 <div class="header-top-link">
+                    <a href="{{ route('login.login') }}"><i class="far fa-arrow-right-to-bracket"></i> Login</a>
+                    <a href="{{ route('register.index') }}"><i class="far fa-user-vneck"></i> Register</a>
+                 </div>
+                @endif
+
                 {{-- <div class="header-top-social d-none">
                    <span>Follow Us: </span>
                    <a href="#"><i class="fab fa-facebook"></i></a>
@@ -80,8 +83,8 @@
                             case 'driver':
                                 $redirectUrl = route('driver.dashboard');
                                 $profile = route('driver.profile');
-                                $booking = route('customer.profile');
-                                $setting = route('customer.profile');
+                                $booking = route('driver.booking');
+                                $setting = route('driver.profile');
                                 break;
                             case 'staff':
                                 $redirectUrl = route('staff.dashboard');
@@ -95,6 +98,8 @@
                                 $booking = '';
                                 $setting = '';
                         }
+
+
                     @endphp
                     <div class="nav-right-account">
                         <div class="dropdown">

@@ -4,39 +4,153 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Services\RouteService;
 
 use Illuminate\Support\Facades\Session;
 
 use App\Models\Bookings;
+use App\Models\Reservation;
+use App\Models\Payments;
 use App\Models\Taxis;
 use App\Models\VehicleTypes;
 use App\Models\VehicleModels;
 
 class DriverDashboardController extends Controller
 {
+    protected $routeService;
+    public function __construct(RouteService $routeService)
+    {
+        $this->routeService = $routeService;
+    }
     public function index(){
-        $user_id = Auth::user()->id;
+        $driver_id = Auth::user()->id;
         $allVehicleTypes = VehicleTypes::where('status', 1)->get();
         $allVehicleModels = VehicleModels::where('status', 1)->get();
 
-        $allUpcommingBooking = Bookings::where('status', 1)->where('user_id', $user_id)->where('pick_up_date',date('Y-m-d'))->whereIn('active', ['pending', 'active'])->count();
+        $allUpcommingBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->where('pick_up_date',date('Y-m-d'))->whereIn('active', ['pending', 'active'])->count();
 
-        $allTotalBooking = Bookings::where('status', 1)->where('user_id', $user_id)->count();
+        $getAllBookings = Bookings::where('status', 1)->where('driver_id', $driver_id)->get();
 
-        $allCancelBooking = Bookings::where('status', 1)->where('user_id', $user_id)->whereIn('active',['cancel'])->count();
+        $allTotalBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->count();
 
-        return view('pages.frontend.driver_dashboard',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking'));
+        $allCancelBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->whereIn('active',['cancel'])->count();
+
+        return view('pages.frontend.driver_dashboard',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking','getAllBookings'));
+    }
+
+    public function driverBooking(){
+        $driver_id = Auth::user()->id;
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        $allVehicleModels = VehicleModels::where('status', 1)->get();
+
+        $allUpcommingBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->where('pick_up_date',date('Y-m-d'))->whereIn('active', ['pending', 'active'])->count();
+
+        $allTotalBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->count();
+
+        $allCancelBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->whereIn('active',['cancel'])->count();
+
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        $allVehicleModels = VehicleModels::where('status', 1)->get();
+        return view('pages.frontend.driver_dashboard_booking',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking'));
+    }
+
+    public function driverPaymentHistory(){
+        $driver_id = Auth::user()->id;
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        $allVehicleModels = VehicleModels::where('status', 1)->get();
+
+        $getAllBookings = Bookings::where('status', 1)->where('driver_id', $driver_id)->where('active','<>','cancel')->get();
+
+        $allUpcommingBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->where('pick_up_date',date('Y-m-d'))->whereIn('active', ['pending', 'active'])->count();
+
+        $allTotalBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->count();
+
+        $allCancelBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->whereIn('active',['cancel'])->count();
+
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        $allVehicleModels = VehicleModels::where('status', 1)->get();
+        return view('pages.frontend.driver_dashboard_payment_history',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking','getAllBookings'));
+    }
+
+    public function driverCancelBooking(){
+        $driver_id = Auth::user()->id;
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        $allVehicleModels = VehicleModels::where('status', 1)->get();
+
+        $getAllBookings = Bookings::where('status', 1)->where('driver_id', $driver_id)->whereNotIn('active', ['cancel', 'complete'])->get();
+
+        $allUpcommingBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->where('pick_up_date',date('Y-m-d'))->whereIn('active', ['pending', 'active'])->count();
+
+        $allTotalBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->count();
+
+        $allCancelBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->whereIn('active',['cancel'])->count();
+
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        $allVehicleModels = VehicleModels::where('status', 1)->get();
+        return view('pages.frontend.driver_dashboard_cancel_booking',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking','getAllBookings'));
     }
 
     public function driverProfile(){
+        $driver_id = Auth::user()->id;
         $allVehicleTypes = VehicleTypes::where('status', 1)->get();
         $allVehicleModels = VehicleModels::where('status', 1)->get();
-        return view('pages.frontend.user_dashboard_profile',compact('allVehicleTypes','allVehicleModels'));
+
+        $allUpcommingBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->where('pick_up_date',date('Y-m-d'))->whereIn('active', ['pending', 'active'])->count();
+
+        $allTotalBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->count();
+
+        $allCancelBooking = Bookings::where('status', 1)->where('driver_id', $driver_id)->whereIn('active',['cancel'])->count();
+
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        $allVehicleModels = VehicleModels::where('status', 1)->get();
+        return view('pages.frontend.driver_dashboard_profile',compact('allVehicleTypes','allVehicleModels','allUpcommingBooking','allTotalBooking','allCancelBooking'));
+    }
+
+    public function driverCancelBookingForm(Request $request){
+        $booking = Bookings::find($request->booking_id);
+        $messageType = '';
+        $message = '';
+
+        $validator = Validator::make($request->all(), [
+            'booking_id' => 'required|exists:bookings,id',
+            'choose_reason' => 'required',
+            'comments' => 'required'
+        ]);
+        //booking_id choose_reason comments
+
+        if ($validator->fails()) {
+            $messageType = 'error';
+            $message = 'Validation failed: ' . implode(', ', $validator->errors()->all());
+        }
+
+        try {
+            $userData = [
+                'reason' => $request->choose_reason,
+                'remarks' => $request->comments,
+                'cancel_user_id' => Auth::user()->id,
+                'active' => 'cancel',
+            ];
+
+            $booking->update($userData);
+            $messageType = 'success';
+            $message = 'Booking has been successfully cancelled.';
+
+        } catch (\Exception $e) {
+            $messageType = 'error';
+            $message = 'An error occurred while saving the user data: ' . $e->getMessage();
+        }
+
+        $responseData = [
+            'messageType' => $messageType,
+            'message' => $message
+        ];
+        return response()->json($responseData);
     }
 
     public function driverUpdatePassword(Request $request)
@@ -44,7 +158,7 @@ class DriverDashboardController extends Controller
         // Validate the input data
         $request->validate([
             'old_password' => 'required',
-            'new_password' => 'required|min:8|confirmed', // confirm_password must match new_password
+            'new_password' => 'required', // confirm_password must match new_password
         ]);
 
         // Check if the old password matches
@@ -86,15 +200,88 @@ class DriverDashboardController extends Controller
         ]);
     }
 
-    public function fetchPedingBooking(Request $request){
-        $allPendingBookings = Bookings::where('status', 1)->where('active', 'pending')->get();
+    public function fetchPaymentHistory(Request $request){
+        $paymentsPayments = Payments::where('status', 1)->where('driver_id', Auth::user()->id)->where('active', 'active')->get();
+        $fetchTable = '<table class="table text-nowrap">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th width="150px">Booking ID</th>
+                            <th>Booking Date</th>
+                            <th>Booking Time</th>
+                            <th width="150px">Destance</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+
+
+        foreach ($paymentsPayments as $key => $paymentsPayment) {
+            $reservationsDetails = Reservation::where('id', $paymentsPayment->reservation_id)->where('status', 1)->where('active', 'active')->first();
+            $bookingDetails = Bookings::where('id', $reservationsDetails->booking_id)->where('status', 1)->where('active', 'complete')->first();
+            $booking_id = $bookingDetails->id ?? 0;
+
+            $time =  $bookingDetails->pick_up_time ?? '';
+            $date =  $bookingDetails->pick_up_date ?? '';
+
+            $pickupTime = date("h:i A", strtotime($time));
+            $pickupDate = date("d F, Y", strtotime($date));
+
+            $address = '';
+            //$address = $this->routeService->reverseGeocode($latitude, $longitude);
+            switch ($paymentsPayment->active) {
+                case 'active':
+                    $statusClass = 'success';
+                    $statusTitle = 'Completed';
+                    break;
+                case 'inactive':
+                    $statusClass = 'danger';
+                    $statusTitle = 'Incomplete';
+                    break;
+                case 'pending':
+                    $statusClass = 'info';
+                    $statusTitle = 'Pending';
+                    break;
+                case 'cancel':
+                    $statusClass = 'danger';
+                    $statusTitle = 'Cancel';
+                    break;
+                default:
+                    $statusClass = 'warning';
+                    $statusTitle = 'Completed';
+                    break;
+            }
+
+            $fetchTable .='<tr>
+                            <td>'. ($key + 1) .'</td>
+                            <td width="150px"> '.$booking_id.'
+                            </td>
+                            <td>'.$pickupDate.'</td>
+                            <td>'.$pickupTime.'</td>
+                            <td width="150px">
+                               '.$paymentsPayment->distance.' km
+                            </td>
+                            <td>Rs '.$paymentsPayment->total_amount.'</td>
+                            <td><span class="badge badge-'.$statusClass.' text-capitalize">'.$statusTitle.'</span></td>
+                            </tr>';
+
+        }
+
+        $fetchTable .= '</tbody>
+                    </table>';
+        echo $fetchTable ;
+    }
+
+    public function fetchdriverBooking(Request $request){
+        $allPendingBookings = Bookings::where('status', 1)->where('driver_id', Auth::user()->id)->whereIn('active', ['complete','pending','active','cancel'])->get();
         $fetchTable = '<table class="table text-nowrap">
                     <thead>
                         <tr>
                             <th>#</th>
                             <th width="150px">Cab Info</th>
                             <th>Journey Date</th>
-                            <th width="150px">Drop Off Location</th>
+                            <th width="150px">Distance</th>
                             <th>Price</th>
                             <th>Status</th>
                         </tr>
@@ -105,7 +292,7 @@ class DriverDashboardController extends Controller
         foreach ($allPendingBookings as $key => $pendingBooking) {
 
             if($pendingBooking->driver_id){
-                $taxis_detail = Taxis::where('status',1)->where('user_id',$pendingBooking->driver_id)->first();
+                $taxis_detail = Taxis::where('status',1)->where('user_id','=',$pendingBooking->driver_id)->first();
                 $title = $taxis_detail->title;
                 $taxi_img = isset($taxis_detail->image) ? $taxis_detail->image : 'taxi_sample.png';
             }else{
@@ -124,7 +311,25 @@ class DriverDashboardController extends Controller
 
             list($latitude, $longitude) = explode(',', $pendingBooking->pick_up_location);
             $address = '';
-            $address = $this->routeService->reverseGeocode($latitude, $longitude);
+            //$address = $this->routeService->reverseGeocode($latitude, $longitude);
+
+            switch ($pendingBooking->active) {
+                case 'complete':
+                    $statusClass = 'success';
+                    break;
+                case 'pending':
+                    $statusClass = 'primary';
+                    break;
+                case 'active':
+                    $statusClass = 'info';
+                    break;
+                case 'cancel':
+                    $statusClass = 'danger';
+                    break;
+                default:
+                    $statusClass = 'warning'; // fallback class if needed
+                    break;
+            }
 
             $fetchTable .='<tr>
                             <td>'. ($key + 1) .'</td>
@@ -144,7 +349,82 @@ class DriverDashboardController extends Controller
                             <p>'.$pickupTime.'</p>
                             </td>
                             <td width="150px">
-                                '.$address.'
+                                '.$pendingBooking->total_km.' km
+                            </td>
+                            <td>Rs '.$pendingBooking->total_charged.'</td>
+                            <td><span class="badge badge-'.$statusClass.' text-capitalize">'.$pendingBooking->active.'</span></td>
+                            </tr>';
+
+        }
+
+        $fetchTable .= '</tbody>
+                    </table>';
+        echo $fetchTable ;
+    }
+
+    public function fetchPedingBooking(Request $request){
+
+        $allPendingBookings = Bookings::where('status', 1)->where('active', 'pending')->where('driver_id',Auth::user()->id)->where('pick_up_date',date('Y-m-d'))->get();
+
+        $fetchTable = '<table class="table text-nowrap">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th width="150px">Cab Info</th>
+                            <th>Journey Date</th>
+                            <th width="150px">Distance</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+
+
+        foreach ($allPendingBookings as $key => $pendingBooking) {
+
+            if($pendingBooking->driver_id){
+                $taxis_detail = Taxis::where('status',1)->where('user_id','=',$pendingBooking->driver_id)->first();
+                $title = $taxis_detail->title;
+                $taxi_img = isset($taxis_detail->image) ? $taxis_detail->image : 'taxi_sample.png';
+            }else{
+                $title = '';
+                $taxi_img = 'taxi_sample.png';
+            }
+
+
+            $booking_id = $pendingBooking->id;
+
+            $time = $pendingBooking->pick_up_date;
+            $pickupTime = date("h:i A", strtotime($time));
+            $date = $pendingBooking->pick_up_date;
+            $pickupDate = date("d F, Y", strtotime($date));
+
+
+            list($latitude, $longitude) = explode(',', $pendingBooking->pick_up_location);
+            $address = '';
+            //$address = $this->routeService->reverseGeocode($latitude, $longitude);
+            // '.$address.'/
+            // '.$latitude.'/
+            // '.$longitude.'
+            $fetchTable .='<tr>
+                            <td>'. ($key + 1) .'</td>
+                                <td width="150px">
+                                <div class="table-list-info">
+                                <a href="#">
+                                    <img src="'.url('public/assets/img/taxi/'.$taxi_img.'').'" alt>
+                                    <div class="table-list-content">
+                                        <h6>'.$title.'</h6>
+                                        <span>Booking ID: #'.$pendingBooking->id.'</span>
+                                    </div>
+                                </a>
+                                </div>
+                            </td>
+                            <td>
+                            <span>'.$pickupDate.'</span>
+                            <p>'.$pickupTime.'</p>
+                            </td>
+                            <td width="150px">
+                                '.$pendingBooking->total_km.' km
                             </td>
                             <td>Rs '.$pendingBooking->total_charged.'</td>
                             <td><span class="badge badge-primary text-capitalize">'.$pendingBooking->active.'</span></td>

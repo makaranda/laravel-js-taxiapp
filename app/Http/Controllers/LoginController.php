@@ -25,6 +25,12 @@ class LoginController extends Controller
     /**
      * Handle login request and redirect based on role.
      */
+
+    public function showAdminLogin(Request $request)
+    {
+    return view('pages.login.index');
+    }
+
     public function login(Request $request)
     {
         // Validate login request

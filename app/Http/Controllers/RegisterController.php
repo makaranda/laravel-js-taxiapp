@@ -189,7 +189,8 @@ class RegisterController extends Controller
 
     public function showCustomerRegisterForm()
     {
-        return view('pages.frontend.regsiter_customer');
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        return view('pages.frontend.regsiter_customer',compact('allVehicleTypes'));
     }
 
     /**
@@ -197,6 +198,7 @@ class RegisterController extends Controller
      */
     public function showDriverRegisterForm()
     {
-        return view('pages.frontend.regsiter_driver');
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
+        return view('pages.frontend.regsiter_driver',compact('allVehicleTypes'));
     }
 }

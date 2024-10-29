@@ -112,7 +112,7 @@
                 <div class="col-lg-2">
                    <div class="form-group">
                       <label>Passengers</label>
-                      <input type="number" class="form-control" placeholder="Passengers" min="1" step="1" max="4" value="1" data-title="Passengers" name="passengers" required>
+                      <input type="number" class="form-control" placeholder="Passengers" min="1" step="1" max="4" value="1" data-title="Passengers" name="passengers" id="passengers" required>
                       <i class="far fa-user-tie"></i>
                    </div>
                 </div>

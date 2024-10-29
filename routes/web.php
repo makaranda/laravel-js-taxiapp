@@ -23,6 +23,8 @@ Route::post('register/driver', [RegisterController::class, 'registerDriver'])->n
 
 //Route::get('register/driver', [RegisterController::class, 'showDriverRegisterForm'])->name('register.driver');
 //Route::post('register/driver', [RegisterController::class, 'registerDriver']);
+Route::get('admin-login', [LoginController::class, 'showAdminLogin'])->name('adminlogin.index');
+Route::post('admin-login', [LoginController::class, 'login'])->name('adminlogin.login');
 
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login.index');
 Route::post('login', [LoginController::class, 'login'])->name('login.login');
@@ -38,8 +40,11 @@ Route::post('booking-loginuser', [BookingController::class, 'frontLoginUser'])->
 Route::post('booking-check-booking', [BookingController::class, 'frontCheckBooking'])->name('booking.checkbooking');
 Route::get('check-current-booking', [BookingController::class, 'checkCurrentBooking'])->name('booking.checkcurrentbooking');
 Route::get('booking-update-price-distance', [BookingController::class, 'updatePriceDistance'])->name('booking.updatepricedistance');
-Route::post('booking-get-route', [BookingController::class, 'frontGetRoute'])->name('booking.getroute');
+Route::get('booking-get-route', [BookingController::class, 'frontGetRoute'])->name('booking.getroute');
 Route::post('booking-cancel', [BookingController::class, 'bookingCancel'])->name('booking.cancel');
+Route::get('booking-check-nearby-customers', [BookingController::class, 'checkNearByCustomers'])->name('booking.checknearbycustomers');
+Route::post('accept-booking-driver', [BookingController::class, 'acceptBookingDriver'])->name('booking.acceptbookingdriver');
+Route::get('cechk-accepted-driver', [BookingController::class, 'checkAcceptedDriver'])->name('booking.checkaccepteddriver');
 
 // Protect routes by role-based middleware
 
@@ -68,8 +73,14 @@ Route::middleware(['auth', 'role:driver'])->prefix('driver/dashboard')->group(fu
     Route::get('/', [DriverDashboardController::class, 'index'])->name('driver.dashboard');
     Route::get('/profile', [DriverDashboardController::class, 'driverProfile'])->name('driver.profile');
     Route::get('/booking', [DriverDashboardController::class, 'driverBooking'])->name('driver.booking');
+    Route::get('/cancel-booking', [DriverDashboardController::class, 'driverCancelBooking'])->name('driver.cancelbooking');
+    Route::post('/cancel-booking-form', [DriverDashboardController::class, 'driverCancelBookingForm'])->name('driver.cancelbookingform');
+    Route::get('/payment-history', [DriverDashboardController::class, 'driverPaymentHistory'])->name('driver.paymenthistory');
     Route::post('/update-profile', [DriverDashboardController::class, 'driverUpdateProfile'])->name('driver.updateprofile');
     Route::post('/update-password', [DriverDashboardController::class, 'driverUpdatePassword'])->name('driver.updatepassword');
+    Route::get('/fetch-booking', [DriverDashboardController::class, 'fetchDriverBooking'])->name('driver.fetchdriverbooking');
+    Route::get('/fetch-payment-history', [DriverDashboardController::class, 'fetchPaymentHistory'])->name('driver.fetchpaymenthistory');
+    Route::get('/fetch-cancel-booking', [DriverDashboardController::class, 'fetchCancelBooking'])->name('driver.fetchcancelbooking');
     Route::get('/fetch-pending-booking', [DriverDashboardController::class, 'fetchPedingBooking'])->name('driver.fetchdriverpendingbooking');
 });
 

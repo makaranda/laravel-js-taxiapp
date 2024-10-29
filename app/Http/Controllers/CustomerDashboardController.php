@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
@@ -83,7 +84,7 @@ class CustomerDashboardController extends Controller
         $allVehicleTypes = VehicleTypes::where('status', 1)->get();
         $allVehicleModels = VehicleModels::where('status', 1)->get();
 
-        $getAllBookings = Bookings::where('status', 1)->where('user_id', $user_id)->where('active','<>','cancel')->get();
+        $getAllBookings = Bookings::where('status', 1)->where('user_id', $user_id)->whereNotIn('active', ['cancel', 'complete'])->get();
 
         $allUpcommingBooking = Bookings::where('status', 1)->where('user_id', $user_id)->where('pick_up_date',date('Y-m-d'))->whereIn('active', ['pending', 'active'])->count();
 
@@ -133,6 +134,7 @@ class CustomerDashboardController extends Controller
             $userData = [
                 'reason' => $request->choose_reason,
                 'remarks' => $request->comments,
+                'cancel_user_id' => Auth::user()->id,
                 'active' => 'cancel',
             ];
 
@@ -200,7 +202,7 @@ class CustomerDashboardController extends Controller
     }
 
     public function fetchPaymentHistory(Request $request){
-        $paymentsPayments = Payments::where('status', 1)->where('active', 'active')->get();
+        $paymentsPayments = Payments::where('status', 1)->where('user_id', Auth::user()->id)->where('active', 'active')->get();
         $fetchTable = '<table class="table text-nowrap">
                     <thead>
                         <tr>
@@ -273,7 +275,7 @@ class CustomerDashboardController extends Controller
     }
 
     public function fetchCustomerBooking(Request $request){
-        $allPendingBookings = Bookings::where('status', 1)->whereIn('active', ['complete','pending','active','cancel'])->get();
+        $allPendingBookings = Bookings::where('status', 1)->where('user_id', Auth::user()->id)->whereIn('active', ['complete','pending','active','cancel'])->get();
         $fetchTable = '<table class="table text-nowrap">
                     <thead>
                         <tr>
@@ -362,7 +364,12 @@ class CustomerDashboardController extends Controller
     }
 
     public function fetchPedingBooking(Request $request){
-        $allPendingBookings = Bookings::where('status', 1)->where('active', 'pending')->get();
+        if(Auth::user()->role == 'customer'){
+            $allPendingBookings = Bookings::where('status', 1)->where('active', 'pending')->where('user_id',Auth::user()->id)->where('pick_up_date',date('Y-m-d'))->get();
+        }else{
+            $allPendingBookings = Bookings::where('status', 1)->where('active', 'pending')->where('driver_id',Auth::user()->id)->where('pick_up_date',date('Y-m-d'))->get();
+        }
+
         $fetchTable = '<table class="table text-nowrap">
                     <thead>
                         <tr>

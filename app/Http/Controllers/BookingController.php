@@ -5,15 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Services\RouteService;
 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 use App\Models\User;
+use App\Models\Otp;
 use App\Models\Bookings;
 use App\Models\VehicleTypes;
 use DateTime;
@@ -287,11 +290,23 @@ class BookingController extends Controller
         $vehicle_id = 0;
         $map_booking_id = $request->map_booking_id ?? session('booking_id');
         if (Auth::check()) {
-            $checkBookings = Bookings::where('status', 1)
-                                    ->where('id',$map_booking_id)
-                                    ->whereIn('active', ['pending', 'active'])
-                                    ->where('pick_up_date', date('Y-m-d'))
-                                    ->first();
+            if($map_booking_id){
+                $checkBookings = Bookings::where('status', 1)
+                ->where('id',$map_booking_id)
+                ->whereIn('active', ['pending', 'active'])
+                ->where('pick_up_date', date('Y-m-d'))
+                ->first();
+            }else{
+                $user_id = Auth::user()->id;
+                $checkBookings = Bookings::where('status', 1)
+                ->where('user_id',$user_id)
+                ->whereIn('active', ['pending', 'active'])
+                ->where('pick_up_date', date('Y-m-d'))
+                ->orderBy('id', 'desc')
+                ->limit(1)
+                ->first();
+            }
+
             $vehicle_id = $checkBookings->vehicle_type ?? 0;
 
             if($vehicle_id){
@@ -308,17 +323,20 @@ class BookingController extends Controller
             if (!session()->has('user_id')) {
                 session()->put('user_id', $checkBookings->user_id);
             }
-            Bookings::where('status', 1)
-                    ->where('id',$map_booking_id)
-                    ->update([
-                        'total_charged' => $totalCharged,
-                        'total_km' => $distancekm,
-                    ]);
+            // Bookings::where('status', 1)
+            //         ->where('id',$map_booking_id)
+            //         ->update([
+            //             'total_charged' => $totalCharged,
+            //             'total_km' => $distancekm,
+            //         ]);
             $responseData = [
                 'distancekm' => $distancekm,
                 'totalCharged' => $totalCharged,
                 'check_data' => $vehicle_id,
                 'drivers' => $nearbyDrivers,
+                'longatude' => $pickupLongitude,
+                'latitude' => $pickupLatitude,
+
             ];
         }else{
             $responseData = [
@@ -326,21 +344,230 @@ class BookingController extends Controller
                 'totalCharged' => $totalCharged,
                 'check_data' => $vehicle_id,
                 'drivers' => 0,
+                'longatude' => 0,
+                'latitude' => 0,
             ];
         }
+        return response()->json($responseData);
+    }
+
+    public function acceptBookingDriver(Request $request){
+        $status = 0;
+        $message = '';
+        $messageType = '';
+
+        $tripIds = $request->input('all_trp_data');
+        $tripIdArray = explode('/', $tripIds);
+
+        $booking_id = $tripIdArray[0];
+        $user_id = $tripIdArray[1];
+        $driver_id = $tripIdArray[2];
+
+        //$checkBooking = Bookings::where('id',$booking_id)->where('driver_id',$driver_id)->where('id',$booking_id)->first();
+        if(isset($booking_id,$user_id,$driver_id)){
+            $booking = Bookings::find($booking_id);
+            $userDetails = User::where('id',$booking->user_id)->first();
+            $driverDetails = User::where('id',Auth::user()->id)->first();
+            $user_name = $userDetails->name;
+            $driver_name = $driverDetails->name;
+            $acceptData = [
+                'driver_id' => $driver_id,
+                'active' => 'active',
+            ];
+            $booking->update($acceptData);
+            $status = 1;
+
+            $smsmessage = "Dear $user_name,\nDriver $driver_name is accepted your booking \nCheers,\nEsoft Taxi Team";
+
+            //$message = "Dear $name,\nPlease use the following OTP to verify your account \nOTP Number : $otp\nCheers,\nEsoft Taxi Team";
+
+            // Send the request to the SMS API
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer 2287|gbVI7WdVoG69zUFAV4cxCDddN0HsTUgiwgC86QvG',
+            ])->post('https://sms.send.lk/api/v3/sms/send', [
+                'recipient' => $userDetails->phone,
+                'sender_id' => 'SendTest', // Use your actual sender ID
+                'message' => $smsmessage,
+            ]);
+
+            $messageType = 'success';
+            $message = 'You have Successfully Accept this Trip ..!!';
+        }else{
+            $status = 0;
+            $messageType = 'error';
+            $message = 'There have something Missing ..!!';
+        }
+
+        $responseData = [
+            'status' => $status,
+            'message' => $message,
+            'messageType' => $messageType,
+        ];
+
+        return response()->json($responseData);
+    }
+
+    public function checkAcceptedDriver(Request $request){
+        if (Auth::check()) {
+
+            $user = Auth::user();
+            $user_id = $user->id;
+            $user_role = $user->role;
+
+            $bookings = Bookings::where('status', 1)
+            ->where(function ($query) use ($user_id, $user_role) {
+                if ($user_role === 'customer') {
+                    $query->where('user_id', $user_id);
+                } elseif ($user_role === 'driver') {
+                    $query->where('driver_id', $user_id);
+                }
+            })
+            ->where('active', 'active')
+            ->where('pick_up_date', date('Y-m-d'))
+            ->orderBy('id', 'desc')
+            ->get();
+
+            $bookingCount = $bookings->count();
+            $checkBookings = $bookings->first();
+
+            if($bookingCount > 0){
+                $status = 1;
+                $user_id = $user_id;
+                $user_role = $user_role;
+                $booking_id = $checkBookings->id;
+            }else{
+                $status = 0;
+                $user_id = '';
+                $user_role = '';
+                $booking_id = '';
+            }
+
+
+        }else{
+            $status = 0;
+            $user_id = '';
+            $user_role = '';
+            $booking_id = '';
+        }
+
+        $responseData = [
+            'status' => $status,
+            'user_id' => $user_id,
+            'user_role' => $user_role,
+            'booking_id' => $booking_id,
+        ];
+
+        return response()->json($responseData);
+    }
+
+    public function checkNearByCustomers(Request $request) {
+        if (Auth::check()) {
+
+            $user = Auth::user();
+            $user_id = $user->id;
+            $user_role = $user->role;
+
+            if ($user->role == 'driver' && !empty($user->location)) {
+                list($driverLatitude, $driverLongitude) = explode(',', $user->location);
+
+                // Log to check if the driver's location is parsed correctly
+                \Log::info("Driver Location - Latitude: $driverLatitude, Longitude: $driverLongitude");
+
+                // Get nearby customers
+                $nearbyCustomers = $this->routeService->getNearbyCustomers($driverLatitude, $driverLongitude, 1000);
+                if($nearbyCustomers['count'] > 0){
+                    $bookings = Bookings::where('status', 1)
+                    ->where(function ($query) use ($user_id, $user_role) {
+                        if ($user_role === 'customer') {
+                            $query->where('user_id', $user_id);
+                        } elseif ($user_role === 'driver') {
+                            $query->where('driver_id', $user_id);
+                        }
+                    })
+                    ->where('active', 'active')
+                    ->where('pick_up_date', date('Y-m-d'))
+                    ->orderBy('id', 'desc')
+                    ->get();
+
+                    $bookingCountAccept = $bookings->count();
+                    $checkBookingAccept = $bookings->first();
+                    //session()->forget('booking_id');
+                    session()->put('near_by_customers', 1);
+                    $status = ($bookingCountAccept) ? 0 : 1;
+                    $checkBookings = $nearbyCustomers['count'] ?? 0;
+                    $driver_id = Auth::user()->id;
+                    $longitude = $driverLongitude;
+                    $latitude = $driverLatitude;
+                    $session = session('near_by_customers');
+                    $customers = $nearbyCustomers['customers']; // Retrieve the customers array
+                }else{
+                    session()->forget('near_by_customers');
+                    $status = 0;
+                    $checkBookings = 0;
+                    $driver_id = null;
+                    $customers = [];
+                    $longitude = '';
+                    $session = 0;
+                    $latitude = '';
+                }
+            } else {
+                session()->forget('near_by_customers');
+                $status = 0;
+                $checkBookings = 0;
+                $driver_id = null;
+                $customers = [];
+                $longitude = '';
+                $session = 0;
+                $latitude = '';
+            }
+        } else {
+            session()->forget('near_by_customers');
+            $status = 0;
+            $user_id = null;
+            $checkBookings = 0;
+            $driver_id = null;
+            $customers = [];
+            $longitude = '';
+            $session = 0;
+            $latitude = '';
+        }
+
+        $responseData = [
+            'status' => $status,
+            'booking' => $checkBookings,
+            'customers' => $customers,
+            'driver_id' => $driver_id,
+            'longitude' => $longitude,
+            'session' => $session,
+            'latitude' => $latitude,
+        ];
+
         return response()->json($responseData);
     }
 
     public function checkCurrentBooking(Request $request){
 
         if (Auth::check()) {
-            $user_id = Auth::id(); // Get the authenticated user's ID
+            $user_id = Auth::user()->id; // Get the authenticated user's ID
             $status = 1;
-            $checkBookings = Bookings::where('status', 1)
-                         ->where('user_id', $user_id)
-                         ->whereIn('active', ['pending', 'active'])
-                         ->whereDate('pick_up_date', date('Y-m-d'))
-                         ->first();        // User is authenticated
+            if(Auth::user()->role == 'customer'){
+                $checkBookings = Bookings::where('status', 1)
+                ->where('user_id', $user_id)
+                ->whereIn('active', ['pending', 'active'])
+                ->whereDate('pick_up_date', date('Y-m-d'))
+                ->orderBy('id', 'desc')
+                ->limit(1)
+                ->first();        // User is authenticated
+            }else{
+                $checkBookings = Bookings::where('status', 1)
+                ->where('driver_id', $user_id)
+                ->whereIn('active', ['pending', 'active'])
+                ->whereDate('pick_up_date', date('Y-m-d'))
+                ->orderBy('id', 'desc')
+                ->limit(1)
+                ->first();
+            }
+
         } else {
             $user_id = null;
             $status = 0;
@@ -348,10 +575,19 @@ class BookingController extends Controller
         }
 
         $booking = isset($checkBookings) ? 1 : 0;
+        $pick_up_location = $checkBookings->pick_up_location ?? '';
+        if($pick_up_location){
+            list($pickupLatitude, $pickupLongitude) = explode(',', $pick_up_location);
+        }else{
+            $pickupLatitude = '';
+            $pickupLongitude = '';
+        }
 
         $responseData = [
             'status' => $status,
-            'booking' => $booking,
+            'booking' => session()->has('near_by_customers') ? 0 : $booking,
+            'longatude' => $pickupLongitude,
+            'latitude' => $pickupLatitude,
         ];
 
         // Return the response as JSON
@@ -359,6 +595,7 @@ class BookingController extends Controller
     }
 
     public function frontCheckBooking(Request $request){
+
         $message = '';
         $messageType = '';
         $booking = 0;
@@ -370,26 +607,39 @@ class BookingController extends Controller
         if (Auth::check()) {
             $status = 1;
 
-            if(!empty($map_booking_id)){
+            // Set the date format for today
+            $today = date('Y-m-d');
+
+            // Determine user ID
+            $user_id = Auth::user()->id;
+            $user_role = Auth::user()->role;
+
+            // Conditional booking check
+            if (!empty($map_booking_id)) {
+
                 $checkBookings = Bookings::where('status', 1)
-                                    ->where('id',$map_booking_id)
-                                    ->whereIn('active', ['pending', 'active'])
-                                    ->where('pick_up_date', date('Y-m-d'))
-                                    ->first();
-            }else{
+                    ->where('id', $map_booking_id)
+                    ->whereIn('active', ['pending', 'active'])
+                    ->whereDate('pick_up_date', $today)
+                    ->orderBy('id', 'desc')
+                    ->limit(1)
+                    ->first();
+            } else {
+
                 $checkBookings = Bookings::where('status', 1)
-                                    ->where('user_id', $user_id)
-                                    ->whereIn('active', ['pending', 'active'])
-                                    ->where('pick_up_date', date('Y-m-d'))
-                                    ->first();
+                    ->where($user_role == 'customer' ? 'user_id' : 'driver_id', $user_id)
+                    ->whereIn('active', ['pending', 'active'])
+                    ->whereDate('pick_up_date', $today)
+                    ->orderBy('id', 'desc')
+                    ->limit(1)
+                    ->first();
             }
 
-
+            // Booking data
             if ($checkBookings) {
                 $booking = 1;
                 $pick_up_location = $checkBookings->pick_up_location;
                 $drop_off_location = $checkBookings->drop_off_location;
-
             } else {
                 $booking = 0;
                 $pick_up_location = '';
@@ -405,6 +655,10 @@ class BookingController extends Controller
                 session()->put('booking_id', 0);
             }
         }
+
+        $pick_up_location = $checkBookings->pick_up_location;
+        list($pickupLatitude, $pickupLongitude) = explode(',', $pick_up_location);
+
         $responseData = [
             'message' => $message,
             'messageType' => $messageType,
@@ -412,6 +666,8 @@ class BookingController extends Controller
             'booking' => $booking,
             'booking_id' => $checkBookings->id ?? 0,
             'user_id' => $checkBookings->user_id ?? 0,
+            'longatude' => $pickupLongitude,
+            'latitude' => $pickupLatitude,
             'pick_up_location' => $pick_up_location,
             'drop_off_location' => $drop_off_location,
             'customer_name' => Auth::user()->name,
@@ -422,6 +678,7 @@ class BookingController extends Controller
     }
 
     public function frontCheckUser(Request $request){
+        session()->forget('booking_id');
         $status = Auth::check() ? 1 : 0;
         return response()->json(['status' => $status]);
     }

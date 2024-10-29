@@ -10,7 +10,29 @@
         @stack('css')
     </head>
   <body>
+    @php
+    if (Auth::check()) {
+        if(Auth::user()->role == 'customer'){
+            $personTitle = 'Customer';
+            $userLoginType = 'customer';
+            $homeRoute = route('customer.dashboard');
+        }else if(Auth::user()->role == 'driver'){
+            $personTitle = 'Driver';
+            $userLoginType = 'driver';
+            $homeRoute = route('driver.dashboard');
+        }else{
+            $personTitle = '';
+            $homeRoute = '';
+            $userLoginType = '';
+        }
+    }else{
+        $personTitle = '';
+        $homeRoute = '';
+        $userLoginType = '';
+    }
+    @endphp
         @include('components.frontend.nav')
+        <input type="hidden" name="user_login_type" id="user_login_type" value="{{ $userLoginType }}">
         <div id="overlay" style="display: block;">
             <div class="loader"></div>
         </div>

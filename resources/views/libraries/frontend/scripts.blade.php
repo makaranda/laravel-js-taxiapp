@@ -204,6 +204,8 @@ $(document).ready(function(){
         var checkUserUrl = '{{ route("booking.checkbooking") }}';
         var csrfToken = '{{ csrf_token() }}';
         var map_booking_id = $('#map_booking_id').val();
+
+        console.log(map_booking_id);
         $.ajax({
             url: checkUserUrl,
             type: 'POST',
@@ -213,6 +215,7 @@ $(document).ready(function(){
                 if (data.status == 1 && data.booking == 1) {
                     var customer_name = data.customer_name;
                     // Prevent map reinitialization
+
                     if (!window.mapInitialized) {
                         var pickupCoords = data.pick_up_location.split(',').map(Number); // Convert string to [lat, lng]
                         var dropoffCoords = data.drop_off_location.split(',').map(Number); // Convert string to [lat, lng]
@@ -230,6 +233,7 @@ $(document).ready(function(){
                         //     maxZoom: 19
                         // }).addTo(map_location);
 
+
                         L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
                             attribution: '&copy; CyclOSM & OpenStreetMap contributors',
                             maxZoom: 17
@@ -245,7 +249,7 @@ $(document).ready(function(){
 
                         $.ajax({
                             url: checkUserUrl2,
-                            type: 'POST',
+                            type: 'get',
                             dataType: 'json',
                             data: {
                                 action: 'checkuser',
@@ -269,6 +273,7 @@ $(document).ready(function(){
                                     var distanceInKilometers = (distanceInMeters / 1000).toFixed(2); // Convert to kilometers and round to 2 decimal places
                                     console.log('Distance (meters):', distanceInMeters);
                                     console.log('Distance (kilometers):', distanceInKilometers);
+
 
                                     $.ajax({
                                         url: checkUserUrl3,
@@ -318,15 +323,20 @@ $(document).ready(function(){
                                                                 className: 'driver-vehicle'
                                                             });
 
+                                                            var radius = 1000;
+                                                            var circleColor = '#ff7800';
+                                                            console.log(data.longatude,data.latitude);
+                                                            console.log(pickupCoords);
+                                                            L.circle([data.latitude,data.longatude], {
+                                                                color: circleColor,
+                                                                fillColor: circleColor,
+                                                                fillOpacity: 0.2,
+                                                                radius: radius
+                                                            }).addTo(map_location);
+
                                                             var driverMarker = L.marker([lat, lng], { icon: driverIcon }).addTo(map_location);
                                                             driverMarker.bindPopup(driverPopupContent, { closeButton: true, autoClose: false, closeOnClick: false, offset: [0, 0] });
-                                                            //var marker = L.marker([lat, lng]).addTo(map_location);
 
-                                                            // Bind a popup with the driver's name and distance
-                                                            // marker.bindPopup(`
-                                                            //     <strong>${driver.name}</strong><br>
-                                                            //     Distance: ${driver.distance ? driver.distance.toFixed(2) : "Unknown"} meters
-                                                            // `);
                                                         } else {
                                                             console.error("Invalid latitude or longitude values for driver:", driver);
                                                         }
@@ -343,6 +353,7 @@ $(document).ready(function(){
                                             console.error('Error:', error,status,xhr);
                                         }
                                     });
+
                                     try {
                                         // Decode the polyline
                                         var decodedCoordinates = polyline.decode(polylineEncoded);
@@ -421,12 +432,150 @@ $(document).ready(function(){
 
             },
             error: function(xhr, status, error) {
-                console.error('Error:', error);
+                console.error('Error:', error,xhr,status);
             }
         });
     });
+
+checkNearByCustomers();
+function checkNearByCustomers() {
+    var checkUserUrl = '{{ route("booking.checknearbycustomers") }}';
+    var csrfToken = '{{ csrf_token() }}';
+
+    $.ajax({
+        url: checkUserUrl,
+        type: 'GET',
+        dataType: 'json',
+        data: { action: 'checkuser', _token: csrfToken },
+        success: function(data) {
+            console.log('Check Near by Customers : ', data);
+            if (data.status == 1 && data.customers.length > 0 && data.session == 1) {
+                $('#map_driver_id').val(data.driver_id);
+                $('#driverModal').modal('show');
+
+                // Pass the data to be used when the modal is shown
+                $('#driverModal').data('customerData', data);
+            } else {
+                console.error("No customers found or unable to retrieve data.");
+            }
+        }
+    });
+}
+
+// When the modal is shown, display customers on the map
+$('#driverModal').on('shown.bs.modal', function () {
+    var data = $(this).data('customerData');
+    if (data && data.customers && Array.isArray(data.customers)) {
+        // Create a map centered on the driver's location
+        var map_location = L.map('showDriverMap').setView([data.latitude, data.longitude], 12);
+        L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+            attribution: '&copy; CyclOSM & OpenStreetMap contributors',
+            maxZoom: 17
+        }).addTo(map_location);
+
+        // Draw a circle to represent the search radius
+        var radius = 1000; // Example radius in meters
+        var circleColor = '#ff7800';
+        L.circle([data.latitude, data.longitude], {
+            color: circleColor,
+            fillColor: circleColor,
+            fillOpacity: 0.2,
+            radius: radius
+        }).addTo(map_location);
+
+        // Plot each customer on the map
+        data.customers.forEach(function(customer) {
+            if (customer.pick_up_location) {
+                // Split the location string into latitude and longitude
+                var locationParts = customer.pick_up_location.split(',');
+                if (locationParts.length === 2) {
+                    var lat = parseFloat(locationParts[0].trim());
+                    var lng = parseFloat(locationParts[1].trim());
+                    var map_driver_id = $('#map_driver_id').val() ?? '';
+                    if (!isNaN(lat) && !isNaN(lng)) {
+
+                        var customerPopupContent = `
+                            <div>
+                                <h6><strong>${customer.name}</strong></h6>
+                                <p><strong>Phone: </strong><a href="tel:${customer.phone}">${customer.phone}</a></p>
+                                <p><strong>Trip Distance:</strong> ${customer.total_km} km</p>
+                                <p><strong>Trip Charge:</strong> Rs ${customer.total_charged}</p>
+                                <p class="text-center"><buttton type="button" class="btn btn-sm btn-primary acceptDriverButton" data-trip="${customer.booking_id}/${customer.user_id}/${map_driver_id}">Accept Trip</buttton></p>
+                            </div>`;
+                        var customerIcon = L.icon({
+                            iconUrl: `{{ url('public/assets/img/icon/path_to_pickup_icon2.png') }}`,
+                            iconSize: [38, 45],
+                            iconAnchor: [19, 45],
+                            popupAnchor: [0, -45]
+                        });
+                        var customerMarker = L.marker([lat, lng], { icon: customerIcon }).addTo(map_location);
+                        customerMarker.bindPopup(customerPopupContent, { closeButton: true, autoClose: false, closeOnClick: false });
+                    } else {
+                        console.error("Invalid latitude or longitude values for customer:", customer);
+                    }
+                } else {
+                    console.error("Invalid location format for customer:", customer);
+                }
+            } else {
+                console.error("Customer does not have a pick-up location:", customer);
+            }
+        });
+    } else {
+        console.error("No customers found or data.customers is not an array");
+    }
+});
+
+$(document).on('click','.acceptDriverButton',function(){
+    var allTrpData = $(this).attr('data-trip');
+    console.log(allTrpData);
+
+    var checkUserUrl = '{{ route("booking.acceptbookingdriver") }}';
+    var csrfToken = '{{ csrf_token() }}';
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to Accept this Trip..!!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, do it!',
+        cancelButtonText: 'No, cancel!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: checkUserUrl,
+                type: 'POST',
+                dataType: 'json',
+                data: { action: 'checkuser', _token: csrfToken ,'all_trp_data':allTrpData},
+                success: function(response) {
+                    console.log('Accept Driver Booking : ',response);
+                    if (response.status == 1) {
+                        var display = 0;
+                        checkCurrentBooking(display);
+                    }
+                    Swal.fire({
+                        position: "bottom-end",
+                        icon: response.messageType === 'success' ? "success" : "error",
+                        title: response.message,
+                        showConfirmButton: false,
+                        timer: response.messageType === 'success' ? 4000 : 2500
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error AA:', error,xhr, status);
+                }
+            });
+
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+
+        }
+    });
+
+});
+
     checkCurrentBooking();
-    function checkCurrentBooking() {
+    function checkCurrentBooking(display=1) {
 
         var checkUserUrl = '{{ route("booking.checkcurrentbooking") }}';
         var csrfToken = '{{ csrf_token() }}';
@@ -437,18 +586,18 @@ $(document).ready(function(){
             dataType: 'json',
             data: { action: 'checkuser', _token: csrfToken },
             success: function(data) {
+                console.log('Checkk Current Booking : ',data);
                 if (data.status == 1 && data.booking == 1) {
                     $('#scroll-top2').removeClass('d-none');
-                    $('#customModal').modal('show');
+                    if(display == 1){
+                        $('#customModal').modal('show');
+                    }
+
                 }
             }
         });
 
     }
-
-
-
-
 
         // Clear the interval when the modal is shown
     $('#customModal').on('shown.bs.modal', function () {
@@ -474,14 +623,26 @@ $(document).ready(function(){
             console.log(step,formType);
             console.log('#' + formType + 'step-' + step + '');
             let vehicleTypeErrorDisplayed = false;
+            let passengerErrorDisplayed = false;
+
+            const passengerLimits = {
+                1: 3,   // Vehicle type 1 allows up to 3 passengers
+                2: 4,   // Vehicle type 2 allows up to 4 passengers
+                3: 4,   // Vehicle type 3 allows up to 4 passengers
+                4: 4,   // Vehicle type 4 allows up to 4 passengers
+                5: 13,  // Vehicle type 5 allows up to 13 passengers
+                6: 12,  // Vehicle type 6 allows up to 12 passengers
+                7: 1    // Vehicle type 7 allows only 1 passenger
+            };
             //$('.alert').text('TESTING');
             // Loop through required fields in the given step
             console.log(formType);
             $('#' + formType + 'step-' + step + ' input, #' + formType + 'step-' + step + ' select').each(function() {
                 if ($(this).prop('required')) {
                     if ($(this).val() === "" || $(this).val() === null) {
+                            // Generic field validation
                         var errorMessage = $(this).attr('data-title') + " is required.";
-                        errors.push(errorMessage); // Collect error messages
+                        errors.push(errorMessage);
                         isValid = false;
 
                     }
@@ -495,6 +656,34 @@ $(document).ready(function(){
                     errors.push(errorMessage); // Collect error messages
                     vehicleTypeErrorDisplayed = true;
                     isValid = false;
+                }
+
+                var checkedRadio = $('input[name="vehicle_type"]:checked');
+                var checkedRadio2 = $('input[name="nav_vehicle_type"]:checked');
+                console.log('check radio button ',checkedRadio,checkedRadio2);
+                if (checkedRadio.length > 0) {
+                    var vehicle_type = checkedRadio.attr('data-id');
+                    var passengers = parseInt($('#passengers').val(), 10)
+
+                    if (passengerLimits[vehicle_type] && passengers > passengerLimits[vehicle_type] && !passengerErrorDisplayed) {
+                        var maxPassengers = passengerLimits[vehicle_type];
+                        var errorMessage = `You can admit ${maxPassengers} passengers or less..!!`;
+                        errors.push(errorMessage);
+                        passengerErrorDisplayed = true;
+                        isValid = false;
+                    }
+                }
+                if(checkedRadio2.length > 0){
+                    var vehicle_type2 = checkedRadio2.attr('data-id');
+                    var passengers2 = parseInt($('#navpassengers').val(), 10)
+
+                    if (passengerLimits[vehicle_type2] && passengers2 > passengerLimits[vehicle_type2] && !passengerErrorDisplayed) {
+                        var maxPassengers = passengerLimits[vehicle_type2];
+                        var errorMessage = `You can admit ${maxPassengers} passengers or less..!!`;
+                        errors.push(errorMessage);
+                        passengerErrorDisplayed = true;
+                        isValid = false;
+                    }
                 }
             });
 
@@ -545,6 +734,7 @@ $(document).ready(function(){
             var nextStep = $(this).data('next');
             var currentStep = nextStep - 1;
             var formType = 'next';
+            $('#navpassengers').val(1);
             console.log($('#pick_up_time').val());
             if (validateStepFields(currentStep,formType)) {
                 $('.form-step').hide(); // Hide all steps
@@ -618,6 +808,7 @@ $(document).ready(function(){
             var nextStep = $(this).data('next');
             var currentStep = nextStep - 1;
             var formType = 'nav-next';
+            $('#passengers').val(1);
             console.log(formType,nextStep);
             console.log($('#nav_pick_up_time').val());
             if (validateStepFields(currentStep,formType)) {
@@ -914,6 +1105,35 @@ $(document).ready(function(){
             var strTime = hours + ':' + minutes + ' ' + ampm;
             return strTime;
         }
+
+        function checkAcceptedDriver(){
+            var checkUserUrl = '{{ route("booking.checkaccepteddriver") }}'; // Pass the route from Blade to a JS variable
+            var csrfToken = '{{ csrf_token() }}';
+            $.ajax({
+                url: checkUserUrl,
+                type: 'GET',
+                dataType: 'json',
+                data: {action:'checkuser'},
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#driverModal').modal('hide');
+                    }else{
+                        //$('#driverModal').addClass('d-block');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error:', xhr, status, error);
+                }
+            });
+        }
+
+        setInterval(function () {
+            checkAcceptedDriver();
+        }, 3000);
 
         // $('#vehicleType').on('change', function() {
         //     var type_id = $(this).val();

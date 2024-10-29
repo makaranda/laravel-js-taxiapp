@@ -12,6 +12,7 @@ class HomeController extends Controller
 {
     public function index()
     {
+        //session()->forget('booking_id');
         $allVehicleTypes = VehicleTypes::where('status', 1)->get();
         $allVehicleModels = VehicleModels::where('status', 1)->get();
 

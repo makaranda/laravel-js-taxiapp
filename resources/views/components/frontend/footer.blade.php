@@ -116,6 +116,33 @@
 </div>
 
 
+<!-- Modal -->
+<div class="modal fade" id="driverModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-bottom-right">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">Find Near by Customers</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <input type="hidden" name="driver_pick_up_location" id="driver_pick_up_location"/>
+          <input type="hidden" name="driver_drop_off_location" id="driver_drop_off_location"/>
+          <input type="hidden" name="driver_map_destance" id="driver_map_destance"/>
+          <input type="hidden" name="map_driver_id" id="map_driver_id" value="{{ Auth::check() ? Auth::user()->id : '' }}"/>
+          <input type="hidden" name="driver_map_booking_id" id="driver_map_booking_id" value=""/>
+          <div id="showDriverMap"  style="height: 400px;width:100%;"></div>
+        </div>
+        <div class="modal-footer d-block">
+            <div class="row">
+                <div class="col-12 col-md-12 text-center">
+                    <button class="theme-btn next-step" id="driverEdnTrip">End Trip</button>
+                </div>
+            </div>
+          {{-- <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> --}}
+        </div>
+      </div>
+    </div>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
@@ -152,7 +179,7 @@
                    <div class="col-lg-2">
                       <div class="form-group">
                          <label>Passengers</label>
-                         <input type="number" class="form-control" placeholder="Passengers" min="1" step="1" max="4" value="1" data-title="Passengers" name="navpassengers" required>
+                         <input type="number" class="form-control" placeholder="Passengers" min="1" step="1" max="4" value="1" data-title="Passengers" name="navpassengers" id="navpassengers" required>
                          <i class="far fa-user-tie"></i>
                       </div>
                    </div>
