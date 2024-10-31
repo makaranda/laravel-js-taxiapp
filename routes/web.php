@@ -11,6 +11,10 @@ use App\Http\Controllers\DriverDashboardController;
 use App\Http\Controllers\StaffDashboardController;
 use App\Http\Controllers\VehiclesController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\VehicleTypeController;
+use App\Http\Controllers\DriverManagementController;
+use App\Http\Controllers\CustomerManagementController;
+use App\Http\Controllers\ReservationsManagementController;
 
 Route::get('/otp/verify/{user_id}', [OtpController::class, 'showVerifyForm'])->name('otp.verify');
 Route::post('/otp/verify', [OtpController::class, 'verify'])->name('otp.verify.submit');
@@ -52,6 +56,35 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin/dashboard')->group(func
     Route::get('/', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/profile', [AdminDashboardController::class, 'adminProfile'])->name('admin.profile');
     Route::get('/booking', [AdminDashboardController::class, 'adminBooking'])->name('admin.booking');
+
+
+    // Vehicle Types Management Routes
+    Route::get('/vehicle-types', [VehicleTypeController::class, 'index'])->name('vehicle-types.index');
+    Route::post('/vehicle-types', [VehicleTypeController::class, 'store'])->name('vehicle-types.store');
+    Route::put('/vehicle-types/{id}', [VehicleTypeController::class, 'update'])->name('vehicle-types.update');
+    Route::delete('/vehicle-types/{id}', [VehicleTypeController::class, 'destroy'])->name('vehicle-types.destroy');
+    Route::post('/vehicle-types/{id}/toggle-status', [VehicleTypeController::class, 'toggleStatus'])->name('vehicle-types.toggle-status');
+
+    // Driver Management Routes
+    Route::get('/drivers', [DriverManagementController::class, 'index'])->name('drivers.index');
+    Route::post('/drivers', [DriverManagementController::class, 'store'])->name('drivers.store');
+    Route::put('/drivers/{id}', [DriverManagementController::class, 'update'])->name('drivers.update');
+    Route::delete('/drivers/{id}', [DriverManagementController::class, 'destroy'])->name('drivers.destroy');
+    Route::post('/drivers/{id}/toggle-status', [DriverManagementController::class, 'toggleStatus'])->name('drivers.toggle-status');
+
+    // Customer Management Routes
+    Route::get('/customers', [CustomerManagementController::class, 'index'])->name('customers.index');
+    Route::post('/customers', [CustomerManagementController::class, 'store'])->name('customers.store');
+    Route::put('/customers/{id}', [CustomerManagementController::class, 'update'])->name('customers.update');
+    Route::delete('/customers/{id}', [CustomerManagementController::class, 'destroy'])->name('customers.destroy');
+    Route::post('/customers/{id}/toggle-status', [CustomerManagementController::class, 'toggleStatus'])->name('customers.toggle-status');
+
+    // Reservations Management Routes
+    Route::get('/reservations', [ReservationsManagementController::class, 'index'])->name('reservations.index');
+    Route::post('/admin/reservations', [AdminDashboardController::class, 'storeReservation'])->name('admin.reservations.store');
+    Route::put('/admin/reservations/{id}', [AdminDashboardController::class, 'updateReservation'])->name('admin.reservations.update');
+    Route::delete('/admin/reservations/{id}', [AdminDashboardController::class, 'destroyReservation'])->name('admin.reservations.destroy');
+    Route::post('/admin/reservations/{id}/toggle-status', [AdminDashboardController::class, 'toggleReservationStatus'])->name('admin.reservations.toggle-status');
 });
 
 Route::middleware(['auth', 'role:customer'])->prefix('customer/dashboard')->group(function () {
