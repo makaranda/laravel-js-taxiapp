@@ -190,12 +190,9 @@ $(document).ready(function(){
         //}
     });
 
-
-
     $('#scroll-top2').on('click',function(){
         checkCurrentBooking();
     });
-
 
     $('#scroll-top3').on('click',function(){
         $('#driverModal').modal('show');
