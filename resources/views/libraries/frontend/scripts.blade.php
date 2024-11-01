@@ -196,6 +196,14 @@ $(document).ready(function(){
         checkCurrentBooking();
     });
 
+
+    $('#scroll-top3').on('click',function(){
+        $('#driverModal').modal('show');
+    });
+
+    $('#driverModal').on('hidden.bs.modal', function () {
+        $('#scroll-top3').removeClass('d-none');
+    });
     // setTimeout(function() {
     //     checkCurrentBooking();
     // }, 5000);
@@ -205,7 +213,7 @@ $(document).ready(function(){
         var csrfToken = '{{ csrf_token() }}';
         var map_booking_id = $('#map_booking_id').val();
 
-        console.log(map_booking_id);
+        console.log('Session Booking ID: '+map_booking_id);
         $.ajax({
             url: checkUserUrl,
             type: 'POST',
@@ -292,7 +300,7 @@ $(document).ready(function(){
                                             console.log(data);
                                             console.log('Check Data : ',data.check_data);
                                             $('#showModalDestances').text(data.distancekm+'km');
-                                            $('#showModalCharge').text(data.totalCharged);
+                                            $('#showModalCharge').text(data.totalCharged.toFixed(2));
 
 
                                             if (data.drivers && Array.isArray(data.drivers)) {

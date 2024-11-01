@@ -81,6 +81,7 @@
    </div>
 </footer>
 <a href="#" id="scroll-top2" class="map-icon d-none"><img src="{{ url('public/assets/img/map-point.png') }}" alt=""></a>
+<a href="#" id="scroll-top3" class="map-icon d-none"><img src="{{ url('public/assets/img/map-point.png') }}" alt=""></a>
 <a href="#" id="scroll-top"><i class="far fa-arrow-up"></i></a>
 {{-- <script data-cfasync="false" src="../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js') }}"></script> --}}
 

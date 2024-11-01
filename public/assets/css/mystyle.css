@@ -227,6 +227,28 @@
     }
 }
 
+#scroll-top3 {
+    position: fixed;
+    bottom: 16px;
+    right: 88px;
+    z-index: 99;
+    font-size: 23px;
+    border: none;
+    outline: none;
+    border-radius: 50px;
+    cursor: pointer;
+    width: 54px;
+    height: 54px;
+    line-height: 50px;
+    text-align: center;
+    opacity: 1;
+    visibility: visible;
+    z-index: 999;
+    transition: transform 0.3s ease;
+    &:hover{
+        transform: scale(1.2);
+    }
+}
 
 
 .swal2-actions {

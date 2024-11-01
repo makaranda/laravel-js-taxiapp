@@ -38,7 +38,12 @@
                 <span>Vehicle Types</span>
             </a>
         </div>
-
+        <div class="mt-4">
+            <a href="#" class="nav-link bg-danger text-white logoutBtn">
+                <i class="fas fa-home"></i>
+                <span>Logout</span>
+            </a>
+        </div>
         <div class="profile-section">
             <div class="profile-card">
                 <div class="d-flex align-items-center">
@@ -1233,6 +1238,26 @@
 
 @push('scripts')
 <script>
+
+
+    $('.logoutBtn').on('click',function(event){
+        event.preventDefault(); // Prevent immediate navigation
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You will be logged out!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, log me out!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Proceed with the logout (you can customize the action here)
+                window.location.href = "{{ route('login.logout') }}"; // Adjust to your actual logout route
+            }
+        });
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
         const navLinks = document.querySelectorAll('.nav-link');

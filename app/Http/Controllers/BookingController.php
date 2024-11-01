@@ -442,6 +442,10 @@ class BookingController extends Controller
                 $booking_id = '';
             }
 
+            // if($checkBookings->id != session('booking_id')){
+            //     session()->forget('booking_id');
+            //     session()->put('booking_id', $checkBookings->id);
+            // }
 
         }else{
             $status = 0;
@@ -583,6 +587,10 @@ class BookingController extends Controller
             $pickupLongitude = '';
         }
 
+        if($checkBookings->id != session('booking_id')){
+            session()->forget('booking_id');
+            session()->put('booking_id', $checkBookings->id);
+        }
         $responseData = [
             'status' => $status,
             'booking' => session()->has('near_by_customers') ? 0 : $booking,
@@ -653,6 +661,11 @@ class BookingController extends Controller
                 session()->put('booking_id', $checkBookings->id);
             } else {
                 session()->put('booking_id', 0);
+            }
+        }else{
+            if($checkBookings->id != session('booking_id')){
+                session()->forget('booking_id');
+                session()->put('booking_id', $checkBookings->id);
             }
         }
 
