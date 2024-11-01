@@ -102,12 +102,20 @@
           <div id="showMap"  style="height: 400px;width:100%;"></div>
         </div>
         <div class="modal-footer d-block">
-            <div class="row">
+            <div class="row pb-2">
                 <div class="col-12 col-md-6">
                     <h6>Destances : <span id="showModalDestances">0</span></h6>
                 </div>
                 <div class="col-12 col-md-6">
                     <h6>Charge : Rs <span id="showModalCharge">00</span></h6>
+                </div>
+            </div>
+            <div class="row {{ isset(Auth::user()->role) && Auth::user()->role == 'driver' ? 'd-flex' : 'd-none'  }}">
+                <div class="col-12 col-md-6 text-center pt-2">
+                    <button type="button" class="btn btn-danger w-100" id="driverCancel">Cancel Trip</button>
+                </div>
+                <div class="col-12 col-md-6 text-center pt-2">
+                    <button type="button" class="btn btn-primary w-100" id="driverEdnTrip">End Trip</button>
                 </div>
             </div>
           {{-- <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> --}}
@@ -132,14 +140,6 @@
           <input type="hidden" name="map_driver_id" id="map_driver_id" value="{{ Auth::check() ? Auth::user()->id : '' }}"/>
           <input type="hidden" name="driver_map_booking_id" id="driver_map_booking_id" value=""/>
           <div id="showDriverMap"  style="height: 400px;width:100%;"></div>
-        </div>
-        <div class="modal-footer d-block">
-            <div class="row">
-                <div class="col-12 col-md-12 text-center">
-                    <button class="theme-btn next-step" id="driverEdnTrip">End Trip</button>
-                </div>
-            </div>
-          {{-- <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> --}}
         </div>
       </div>
     </div>
@@ -310,6 +310,49 @@
                     <button type="submit" class="btn btn-primary w-100">Add Location</button>
                 </div>
             </div>
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+
+
+ <!-- Modal -->
+ <div class="modal fade" id="passwordResetModal" tabindex="-1" aria-labelledby="passwordResetModalLbl" aria-hidden="true">
+    <div class="modal-dialog">
+      <form action="#" method="POST" id="frmPasswordReset">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="passwordResetModalLbl">Reset Password</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div class="login-form">
+                <form action="#" method="POST" id="userLoginForm">
+                   <div class="form-group">
+                      <label>Email or Phone</label>
+                      <input type="text" name="pwdresetusername" id="pwdresetusername" class="form-control" placeholder="Your Email or Phone" required>
+                   </div>
+                   <div class="form-group">
+                       <label>Password</label>
+                        <input type="password" name="pwdresetpassword" id="pwdresetpassword" class="form-control" placeholder="Your Password" required>
+                   </div>
+                   <div class="form-group">
+                       <label>New Password</label>
+                        <input type="password" name="pwdresetnewpassword" id="pwdresetnewpassword" class="form-control" placeholder="Your New Password" required>
+                   </div>
+             </div>
+        </div>
+        <div class="modal-footer d-block">
+            <div class="row">
+                <div class="col-6 col-md-6 pl-0">
+                    <button type="button" class="btn btn-danger w-100" data-bs-dismiss="modal">Close</button>
+                </div>
+                <div class="col-6 col-md-6 pr-0">
+                    <button type="submit" class="btn btn-primary w-100">Reset Password</button>
+                </div>
+            </div>
+        </form>
         </div>
       </div>
     </form>

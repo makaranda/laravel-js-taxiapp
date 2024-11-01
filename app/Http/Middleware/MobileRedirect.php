@@ -22,7 +22,7 @@ class MobileRedirect
         // Check if the user is on a mobile device
         if ($agent->isMobile() || $agent->isTablet()) {
             // Redirect to the mobile subdomain
-            return redirect()->to('https://taxi.websl.lk/template2/');
+            //return redirect()->to('https://taxi.websl.lk/template2/');
         }
 
         return $next($request);

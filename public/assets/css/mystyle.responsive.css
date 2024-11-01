@@ -5,6 +5,10 @@
         grid-template-columns: repeat(7, 1fr);
         gap: 10px;
     }
+    #customModal .modal-dialog-bottom-right ,#driverModal .modal-dialog-bottom-right{
+        width: 60%;
+        height: auto;
+    }
 }
 
 @media screen and (max-width: 1400px) {
@@ -12,6 +16,10 @@
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         gap: 10px;
+    }
+    #customModal .modal-dialog-bottom-right ,#driverModal .modal-dialog-bottom-right{
+        width: 60%;
+        height: auto;
     }
 }
 
@@ -21,6 +29,10 @@
         grid-template-columns: repeat(7, 1fr);
         gap: 10px;
     }
+    #customModal .modal-dialog-bottom-right ,#driverModal .modal-dialog-bottom-right{
+        width: 60%;
+        height: auto;
+    }
 }
 
 @media screen and (max-width: 720px) {
@@ -28,6 +40,10 @@
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         gap: 10px;
+    }
+    #customModal .modal-dialog-bottom-right ,#driverModal .modal-dialog-bottom-right{
+        width: 60%;
+        height: auto;
     }
 }
 
@@ -37,6 +53,10 @@
         grid-template-columns: repeat(4, 1fr);
         gap: 10px;
     }
+    #customModal .modal-dialog-bottom-right ,#driverModal .modal-dialog-bottom-right{
+        width: 95%;
+        height: auto;
+    }
 }
 
 
@@ -45,6 +65,10 @@
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 10px;
+    }
+    #customModal .modal-dialog-bottom-right ,#driverModal .modal-dialog-bottom-right{
+        width: 94%;
+        height: auto;
     }
 }
 

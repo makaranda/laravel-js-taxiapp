@@ -9,6 +9,7 @@ class VehicleTypes extends Model
 {
     use HasFactory;
     protected $table = 'vehicle_types';
+    public $timestamps = false;
     protected $fillable = [
         'name',
         'status',

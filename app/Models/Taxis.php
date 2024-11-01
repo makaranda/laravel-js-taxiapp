@@ -9,6 +9,7 @@ class Taxis extends Model
 {
     use HasFactory;
     protected $table = 'taxis';
+    public $timestamps = false;
     protected $fillable = [
         'user_id ',
         'title',

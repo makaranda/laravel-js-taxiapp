@@ -9,6 +9,7 @@ class Invoices extends Model
 {
     use HasFactory;
     protected $table = 'invoices';
+    public $timestamps = false;
     protected $fillable = [
         'title',
         'user_id',

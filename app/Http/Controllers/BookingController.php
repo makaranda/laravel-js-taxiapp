@@ -477,6 +477,28 @@ class BookingController extends Controller
                 // Log to check if the driver's location is parsed correctly
                 \Log::info("Driver Location - Latitude: $driverLatitude, Longitude: $driverLongitude");
 
+                $checkCurrentBooking = Bookings::where('status', 1)
+                                                ->where('active', 'active')
+                                                ->where('pick_up_date', date('Y-m-d'))
+                                                ->orderBy('id', 'desc')
+                                                ->get();
+                $checkCurrentBookingCount = $checkCurrentBooking->count();
+                $checkCurrentBookingAccept = $checkCurrentBooking->first();
+
+                if($checkCurrentBookingCount > 0){
+
+
+                    //session()->forget('booking_id');
+                    session()->forget('near_by_customers');
+                    $status = ($checkCurrentBookingCount) ? 0 : 1;
+                    $checkBookings = $checkCurrentBookingCount ?? 0;
+                    $driver_id = Auth::user()->id;
+                    $longitude = $driverLongitude;
+                    $latitude = $driverLatitude;
+                    $session = 0;
+                    $customers = 0;
+
+                }else{
                 // Get nearby customers
                 $nearbyCustomers = $this->routeService->getNearbyCustomers($driverLatitude, $driverLongitude, 1000);
                 if($nearbyCustomers['count'] > 0){
@@ -488,7 +510,7 @@ class BookingController extends Controller
                             $query->where('driver_id', $user_id);
                         }
                     })
-                    ->where('active', 'active')
+                    ->where('active', 'pending')
                     ->where('pick_up_date', date('Y-m-d'))
                     ->orderBy('id', 'desc')
                     ->get();
@@ -503,7 +525,7 @@ class BookingController extends Controller
                     $longitude = $driverLongitude;
                     $latitude = $driverLatitude;
                     $session = session('near_by_customers');
-                    $customers = $nearbyCustomers['customers']; // Retrieve the customers array
+                    $customers = $nearbyCustomers['customers'];
                 }else{
                     session()->forget('near_by_customers');
                     $status = 0;
@@ -514,6 +536,7 @@ class BookingController extends Controller
                     $session = 0;
                     $latitude = '';
                 }
+              }
             } else {
                 session()->forget('near_by_customers');
                 $status = 0;
@@ -524,6 +547,8 @@ class BookingController extends Controller
                 $session = 0;
                 $latitude = '';
             }
+
+
         } else {
             session()->forget('near_by_customers');
             $status = 0;
@@ -587,7 +612,7 @@ class BookingController extends Controller
             $pickupLongitude = '';
         }
 
-        if($checkBookings->id != session('booking_id')){
+        if(isset($checkBookings->id) && $checkBookings->id != session('booking_id')){
             session()->forget('booking_id');
             session()->put('booking_id', $checkBookings->id);
         }

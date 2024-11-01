@@ -457,11 +457,10 @@ function checkNearByCustomers() {
             if (data.status == 1 && data.customers.length > 0 && data.session == 1) {
                 $('#map_driver_id').val(data.driver_id);
                 $('#driverModal').modal('show');
-
                 // Pass the data to be used when the modal is shown
                 $('#driverModal').data('customerData', data);
             } else {
-                console.error("No customers found or unable to retrieve data.");
+                console.log("No customers found or unable to retrieve data.");
             }
         }
     });
@@ -558,6 +557,8 @@ $(document).on('click','.acceptDriverButton',function(){
                     if (response.status == 1) {
                         var display = 0;
                         checkCurrentBooking(display);
+                        $('#driverModalFooter').removeClass('d-none');
+                        $('#driverModalFooter').addClass('d-block');
                     }
                     Swal.fire({
                         position: "bottom-end",
@@ -595,6 +596,7 @@ $(document).on('click','.acceptDriverButton',function(){
                 if (data.status == 1 && data.booking == 1) {
                     $('#scroll-top2').removeClass('d-none');
                     if(display == 1){
+                        console.log('Test customModal');
                         $('#customModal').modal('show');
                     }
 
@@ -605,9 +607,9 @@ $(document).on('click','.acceptDriverButton',function(){
     }
 
         // Clear the interval when the modal is shown
-    $('#customModal').on('shown.bs.modal', function () {
-        //clearInterval(intervalID);
-    });
+    // $('#customModal').on('shown.bs.modal', function () {
+    //     //clearInterval(intervalID);
+    // });
         // $('#validationAlertArea .btn-close').on('click',function(){
         //     $('#validationAlertArea alert').addClass('d-none');
         // });

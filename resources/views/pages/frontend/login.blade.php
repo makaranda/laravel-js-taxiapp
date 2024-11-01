@@ -27,8 +27,13 @@
                        <input type="text" name="username" id="username" class="form-control" placeholder="Your Email or Phone" required>
                     </div>
                     <div class="form-group">
-                       <label>Password</label>
-                       <input type="password" name="password" id="password" class="form-control" placeholder="Your Password" required>
+                        <label>Password</label>
+                        <div class="input-group">
+                            <input type="password" name="password" id="password" class="form-control" placeholder="Your Password" required>
+                            <span class="input-group-text" onclick="togglePasswordVisibility()" style="cursor: pointer;">
+                                <i class="far fa-eye" id="togglePasswordIcon"></i>
+                            </span>
+                        </div>
                     </div>
                     <div class="d-flex justify-content-between mb-4">
                        <div class="form-check">
@@ -37,7 +42,7 @@
                           Remember Me
                           </label>
                        </div>
-                       <a href="#" class="forgot-pass">Forgot Password?</a>
+                       <a href="#" class="forgot-pass" data-bs-toggle="modal" data-bs-target="#passwordResetModal">Forgot Password?</a>
                     </div>
                     <div class="d-flex align-items-center">
                        <button type="submit" class="theme-btn"><i class="far fa-sign-in"></i> Login</button>
@@ -68,6 +73,21 @@
 @endpush
 @push('scripts')
 <script>
+function togglePasswordVisibility() {
+    const passwordField = document.getElementById("password");
+    const toggleIcon = document.getElementById("togglePasswordIcon");
+
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+        toggleIcon.classList.remove("fa-eye");
+        toggleIcon.classList.add("fa-eye-slash");
+    } else {
+        passwordField.type = "password";
+        toggleIcon.classList.remove("fa-eye-slash");
+        toggleIcon.classList.add("fa-eye");
+    }
+}
+
 $(document).ready(function(){
     //action="{{ route('register.customer') }}"
     $('#userLoginForm').parsley();
