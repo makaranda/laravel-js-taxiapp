@@ -250,6 +250,9 @@
     }
 }
 
+.float-right{
+    float: right;
+}
 
 .swal2-actions {
     width: 96%;
@@ -259,6 +262,30 @@
     .swal2-cancel  {
         width: 47%;
     }
+}
+
+select {
+    -webkit-appearance: menulist; /* For Safari */
+    -moz-appearance: menulist; /* For Firefox */
+    appearance: menulist; /* Standard */
+}
+
+select {
+    -webkit-appearance: none; /* For Safari */
+    -moz-appearance: none; /* For Firefox */
+    appearance: none; /* For other browsers */
+    width: 100%;
+    padding: 10px;
+    padding-right: 30px; /* Space for the custom arrow */
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23333" d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
+    background-color: #fff; /* Ensure background color is consistent */
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+select:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
 /*  checked vehicle type */

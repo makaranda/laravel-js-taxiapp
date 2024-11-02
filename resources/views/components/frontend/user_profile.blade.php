@@ -8,12 +8,14 @@
             $redirectUrl = route('admin.dashboard');
             $profile = route('admin.profile');
             $booking = '';
+            $taxis = '';
             $setting = route('customer.profile');
             break;
         case 'customer':
             $redirectUrl = route('customer.dashboard');
             $profile = route('customer.profile');
             $booking = route('customer.booking');
+            $taxis = '';
             $cancelbooking = route('customer.cancelbooking');
             $paymenthistory = route('customer.paymenthistory');
             $setting = route('customer.profile');
@@ -22,6 +24,7 @@
             $redirectUrl = route('driver.dashboard');
             $profile = route('driver.profile');
             $booking = route('driver.booking');
+            $taxis = route('driver.taxis');
             $cancelbooking = route('driver.cancelbooking');
             $paymenthistory = route('driver.paymenthistory');
             $setting = route('customer.profile');
@@ -30,6 +33,7 @@
             $redirectUrl = route('staff.dashboard');
             $profile = route('staff.profile');
             $booking = '';
+            $taxis = '';
             $cancelbooking = route('customer.profile');
             $paymenthistory = route('customer.profile');
             $setting = route('customer.profile');
@@ -38,6 +42,7 @@
             $redirectUrl = '';
             $profile = '';
             $booking = '';
+            $taxis = '';
             $cancelbooking = '';
             $paymenthistory = '';
             $setting = '';
@@ -58,6 +63,7 @@
        <li><a class="{{ Request::is(''.$log_user->role.'/dashboard') ? 'active' : '' }}" href="{{ $redirectUrl }}"><i class="far fa-gauge-high"></i> Dashboard</a></li>
        <li><a class="{{ Request::is(''.$log_user->role.'/dashboard/profile') ? 'active' : '' }}" href="{{ $profile }}"><i class="far fa-user"></i> My Profile</a></li>
        <li><a class="{{ Request::is(''.$log_user->role.'/dashboard/booking') ? 'active' : '' }}" href="{{ $booking }}"><i class="far fa-layer-group"></i> My Booking</a></li>
+       <li class="{{ ($log_user->role != 'driver')?'d-none':'' }}"><a class="{{ Request::is(''.$log_user->role.'/dashboard/taxis') ? 'active' : '' }}" href="{{ $taxis }}"><i class="far fa-car"></i> Taxis</a></li>
        <li><a class="{{ Request::is(''.$log_user->role.'/dashboard/cancel-booking') ? 'active' : '' }}" href="{{ $cancelbooking }}"><i class="far fa-xmark-circle"></i> Cancel Booking</a></li>
        <li><a class="{{ Request::is(''.$log_user->role.'/dashboard/payment-history') ? 'active' : '' }}" href="{{ $paymenthistory }}"><i class="far fa-credit-card"></i> Payment History</a></li>
        {{-- <li><a href="#"><i class="far fa-gear"></i> Settings</a></li> --}}

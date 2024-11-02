@@ -11,7 +11,7 @@ class Taxis extends Model
     protected $table = 'taxis';
     public $timestamps = false;
     protected $fillable = [
-        'user_id ',
+        'user_id',
         'title',
         'type',
         'doors',

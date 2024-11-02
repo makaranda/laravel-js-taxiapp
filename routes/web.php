@@ -111,6 +111,10 @@ Route::middleware(['auth', 'role:driver'])->prefix('driver/dashboard')->group(fu
     Route::get('/payment-history', [DriverDashboardController::class, 'driverPaymentHistory'])->name('driver.paymenthistory');
     Route::post('/update-profile', [DriverDashboardController::class, 'driverUpdateProfile'])->name('driver.updateprofile');
     Route::post('/update-password', [DriverDashboardController::class, 'driverUpdatePassword'])->name('driver.updatepassword');
+    Route::get('/taxis', [DriverDashboardController::class, 'driverTaxis'])->name('driver.taxis');
+    Route::get('/fetch-taxis', [DriverDashboardController::class, 'fetchdriverTaxis'])->name('driver.fetchtaxis');
+    Route::post('/add-taxi', [DriverDashboardController::class, 'addDriverTaxi'])->name('driver.addtaxi');
+    Route::get('/active-taxis', [DriverDashboardController::class, 'activedriverTaxis'])->name('driver.activetaxi');
     Route::get('/fetch-booking', [DriverDashboardController::class, 'fetchDriverBooking'])->name('driver.fetchdriverbooking');
     Route::get('/fetch-payment-history', [DriverDashboardController::class, 'fetchPaymentHistory'])->name('driver.fetchpaymenthistory');
     Route::get('/fetch-cancel-booking', [DriverDashboardController::class, 'fetchCancelBooking'])->name('driver.fetchcancelbooking');

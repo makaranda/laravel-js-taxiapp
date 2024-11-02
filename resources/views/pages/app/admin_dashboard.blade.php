@@ -1126,7 +1126,7 @@
     .profile-card {
         background: var(--secondary-gradient);
         border-radius: 12px;
-        padding: 20px;
+        padding: 6px 6px;
         color: white;
     }
 

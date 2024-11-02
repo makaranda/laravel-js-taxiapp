@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Otp;
 use App\Models\User;
+use App\Models\VehicleTypes;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -14,9 +15,10 @@ class OtpController extends Controller
     public function showVerifyForm($user_id)
     {
         $checkUser = User::where('id','=',$user_id)->first();
+        $allVehicleTypes = VehicleTypes::where('status', 1)->get();
         //dd($checkUser);
         if($checkUser){
-            return view('pages.frontend.otp_verify', compact('user_id'));
+            return view('pages.frontend.otp_verify', compact('user_id','allVehicleTypes'));
         }else{
             return redirect()->route('register.index');
         }

@@ -87,6 +87,178 @@
 
 
 <!-- Modal -->
+<div class="modal fade" id="addTaxiModal" tabindex="-1" aria-labelledby="addTaxiModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addTaxiModalLabel">Add Taxi</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="" method="POST" id="frmAddTaxi" enctype="multipart/form-data">
+                    @csrf <!-- Include CSRF token for security -->
+
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="type" class="form-label">Vehicle Type</label>
+                                <select name="type" class="form-control" id="type" required>
+                                    <option value="">Select Vehicle Type</option>
+                                    @foreach ($allVehicleTypes as $allVehicleType)
+                                        <option value="{{ $allVehicleType->id }}">{{ $allVehicleType->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="doors" class="form-label">Doors</label>
+                                <input type="number" class="form-control" id="doors" name="doors" value="1" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="passengers" class="form-label">Passengers</label>
+                                <input type="number" class="form-control" id="passengers" name="passengers" value="1" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="luggage_carry" class="form-label">Luggage Capacity</label>
+                                <input type="number" class="form-control" id="luggage_carry" name="luggage_carry" value="1" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="transmission" class="form-label">Transmission</label>
+                                <select class="form-control" id="transmission" name="transmission" required>
+                                    <option value="automatic">Automatic</option>
+                                    <option value="manual">Manual</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="year" class="form-label">Year</label>
+                                <select class="form-control" id="year" name="year" required>
+                                    @for ($x = 2024; $x >= 1950; $x--)
+                                        <option value="{{ $x }}">{{ $x }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="fuel_type" class="form-label">Fuel Type</label>
+                                <select class="form-control" id="fuel_type" name="fuel_type" required>
+                                    <option value="petrol">Petrol</option>
+                                    <option value="diesel">Diesel</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="air_condition" class="form-label">Air Condition</label>
+                                <select class="form-control" id="air_condition" name="air_condition" required>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="gps" class="form-label">GPS</label>
+                                <select class="form-control" id="gps" name="gps" required>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="engine" class="form-label">Engine</label>
+                                <input type="text" class="form-control" id="engine" name="engine" required>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="registered_no" class="form-label">Registered No</label>
+                                <input type="text" class="form-control" id="registered_no" name="registered_no" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Image</label>
+                                <input type="file" class="form-control" id="image" name="image">
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="form-control" id="status" name="status" required>
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="modal-footer d-block">
+                        <div class="row">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-danger w-100" data-bs-dismiss="modal">Close</button>
+                            </div>
+                            <div class="col-6">
+                                <button type="submit" class="btn btn-primary w-100">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Modal -->
 <div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-bottom-right">
       <div class="modal-content">

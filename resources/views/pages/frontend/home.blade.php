@@ -884,7 +884,7 @@
           <div class="col-md-6 col-lg-4 filter-item cat7">
              <div class="taxi-item">
                 <div class="taxi-img">
-                   <img src="{{ url('public/assets/img/taxi/MOTORBIKE/T (1).png') }}" alt>
+                   <img src="{{ url('public/assets/img/taxi/motorbike/T (1).png') }}" alt>
                 </div>
                 <div class="taxi-content">
                    <div class="taxi-head">
@@ -907,7 +907,7 @@
           <div class="col-md-6 col-lg-4 filter-item cat7">
              <div class="taxi-item">
                 <div class="taxi-img">
-                   <img src="{{ url('public/assets/img/taxi/MOTORBIKE/T (2).png') }}" alt>
+                   <img src="{{ url('public/assets/img/taxi/motorbike/T (2).png') }}" alt>
                 </div>
                 <div class="taxi-content">
                    <div class="taxi-head">
@@ -930,7 +930,7 @@
           <div class="col-md-6 col-lg-4 filter-item cat7">
              <div class="taxi-item">
                 <div class="taxi-img">
-                   <img src="{{ url('public/assets/img/taxi/MOTORBIKE/T (4).png') }}" alt>
+                   <img src="{{ url('public/assets/img/taxi/motorbike/T (4).png') }}" alt>
                 </div>
                 <div class="taxi-content">
                    <div class="taxi-head">
@@ -953,7 +953,7 @@
           <div class="col-md-6 col-lg-4 filter-item cat7">
              <div class="taxi-item">
                 <div class="taxi-img">
-                   <img src="{{ url('public/assets/img/taxi/MOTORBIKE/T (3).png') }}" alt>
+                   <img src="{{ url('public/assets/img/taxi/motorbike/T (3).png') }}" alt>
                 </div>
                 <div class="taxi-content">
                    <div class="taxi-head">
@@ -1123,11 +1123,11 @@
                    </div>
                    <div class="rate-feature">
                       <ul>
-                         <li><i class="far fa-check-double"></i> Base Charge: <span>$2.30</span></li>
+                         <li><i class="far fa-check-double"></i> Base Charge: <span>Rs 200</span></li>
                          <li><i class="far fa-check-double"></i> Distance Allowance: <span>5000m</span></li>
-                         <li><i class="far fa-check-double"></i> Up To 50 kms: <span>$1.38/km</span></li>
-                         <li><i class="far fa-check-double"></i> Booking Fee: <span>$0.99</span></li>
-                         <li><i class="far fa-check-double"></i> Extra Passangers: <span>$0.45</span></li>
+                         <li><i class="far fa-check-double"></i> Up To 50 kms: <span>Rs 200/km</span></li>
+                         {{-- <li><i class="far fa-check-double"></i> Booking Fee: <span>$0.99</span></li> --}}
+                         {{-- <li><i class="far fa-check-double"></i> Extra Passangers: <span>$0.45</span></li> --}}
                       </ul>
                       <a href="#" class="theme-btn">Choose Plan<i class="fas fa-arrow-right"></i></a>
                    </div>
@@ -1151,11 +1151,11 @@
                    </div>
                    <div class="rate-feature">
                       <ul>
-                         <li><i class="far fa-check-double"></i> Base Charge: <span>$2.30</span></li>
+                         <li><i class="far fa-check-double"></i> Base Charge: <span>Rs 250</span></li>
                          <li><i class="far fa-check-double"></i> Distance Allowance: <span>5000m</span></li>
-                         <li><i class="far fa-check-double"></i> Up To 50 kms: <span>$1.38/km</span></li>
-                         <li><i class="far fa-check-double"></i> Booking Fee: <span>$0.99</span></li>
-                         <li><i class="far fa-check-double"></i> Extra Passangers: <span>$0.45</span></li>
+                         <li><i class="far fa-check-double"></i> Up To 50 kms: <span>Rs 200/km</span></li>
+                         {{-- <li><i class="far fa-check-double"></i> Booking Fee: <span>$0.99</span></li> --}}
+                         {{-- <li><i class="far fa-check-double"></i> Extra Passangers: <span>$0.45</span></li> --}}
                       </ul>
                       <a href="#" class="theme-btn">Choose Plan<i class="fas fa-arrow-right"></i></a>
                    </div>
@@ -1179,11 +1179,11 @@
                    </div>
                    <div class="rate-feature">
                       <ul>
-                         <li><i class="far fa-check-double"></i> Base Charge: <span>$2.30</span></li>
+                         <li><i class="far fa-check-double"></i> Base Charge: <span>Rs 300</span></li>
                          <li><i class="far fa-check-double"></i> Distance Allowance: <span>5000m</span></li>
-                         <li><i class="far fa-check-double"></i> Up To 50 kms: <span>$1.38/km</span></li>
-                         <li><i class="far fa-check-double"></i> Booking Fee: <span>$0.99</span></li>
-                         <li><i class="far fa-check-double"></i> Extra Passangers: <span>$0.45</span></li>
+                         <li><i class="far fa-check-double"></i> Up To 50 kms: <span>Rs 300/km</span></li>
+                         {{-- <li><i class="far fa-check-double"></i> Booking Fee: <span>$0.99</span></li> --}}
+                         {{-- <li><i class="far fa-check-double"></i> Extra Passangers: <span>$0.45</span></li> --}}
                       </ul>
                       <a href="#" class="theme-btn">Choose Plan<i class="fas fa-arrow-right"></i></a>
                    </div>

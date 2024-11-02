@@ -52,6 +52,33 @@
                             <input type="text" class="form-control" name="user_address" id="user_address" value="{{ Auth::user()->address }}" placeholder="Address">
                          </div>
                       </div>
+                      <div class="col-md-6">
+                         <div class="form-group">
+                            <label class="text-danger">Active Profile</label>
+                            <select name="user_active" class="form-control" id="user_active" required>
+                                <option value="active" {{ old('active', Auth::user()->active) == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ old('active', Auth::user()->active) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                         </div>
+                      </div>
+                      <div class="col-md-6">
+                         <div class="form-group">
+                            <label class="text-danger">Active Taxi</label>
+                            <select name="user_active_taxi" class="form-control" id="user_active_taxi" required>
+                               @if (Auth::user()->taxi_id == '')
+                                  <option value="">Select your Active Taxi</option>
+                               @endif
+                               @foreach ($allTaxis as $allTaxi)
+                                    @if (Auth::user()->taxi_id == $allTaxi->id)
+                                        <!-- Show the selected taxi at the top -->
+                                        <option value="{{ $allTaxi->id }}" selected>{{ $allTaxi->title }}</option>
+                                    @else
+                                        <option value="{{ $allTaxi->id }}">{{ $allTaxi->title }}</option>
+                                    @endif
+                               @endforeach
+                            </select>
+                         </div>
+                      </div>
                    </div>
                    <button type="submit" class="theme-btn my-3"><span class="far fa-user"></span> Save Changes</button>
                 </form>
@@ -110,6 +137,8 @@ $(document).ready(function() {
             user_birthday: $('#updateProfile input[name="user_birthday"]').val(),
             user_email: $('#updateProfile input[name="user_email"]').val(),
             user_phone: $('#updateProfile input[name="user_phone"]').val(),
+            user_active: $('#updateProfile #user_active').val(),
+            user_active_taxi: $('#updateProfile #user_active_taxi').val(),
             user_address: $('#updateProfile input[name="user_address"]').val(),
             _token: '{{ csrf_token() }}' // Include CSRF token for security
         };
@@ -137,7 +166,8 @@ $(document).ready(function() {
                     }, 6000); // Delay for 4 seconds to show the success message
                 }
             },
-            error: function(xhr) {
+            error: function(xhr, status, error) {
+                console.log('Error:', xhr, status, error);
                 // If the request fails, show an error message
                 Swal.fire({
                     position: "bottom-end",

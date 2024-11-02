@@ -192,6 +192,7 @@ class CustomerDashboardController extends Controller
         $user->email = $request->user_email;
         $user->phone = $request->user_phone;
         $user->address = $request->user_address;
+        $user->active = $request->user_active;
         $user->save();
 
         // Return response to the AJAX request
