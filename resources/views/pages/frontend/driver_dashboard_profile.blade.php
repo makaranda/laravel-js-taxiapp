@@ -19,7 +19,7 @@
                             <input type="text" class="form-control" name="user_name" id="user_name" value="{{ Auth::user()->name }}" placeholder="Name">
                          </div>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-md-3">
                          <div class="form-group">
                             <label>Gender</label>
                             <select class="form-control" name="user_gender" id="user_gender">
@@ -28,10 +28,16 @@
                             </select>
                          </div>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-md-4">
                          <div class="form-group">
                             <label>Birthday</label>
                             <input type="text" class="form-control date-picker-all" min="{{ date('Y-m-d', strtotime('-150 years')) }}"  name="user_birthday" id="user_birthday" value="{{ Auth::user()->birthday }}" placeholder="Birthday">
+                         </div>
+                      </div>
+                      <div class="col-md-5">
+                         <div class="form-group">
+                            <label>Phone</label>
+                            <input type="text" class="form-control" name="user_phone" id="user_phone" value="{{ Auth::user()->phone }}" placeholder="Phone">
                          </div>
                       </div>
                       <div class="col-md-12">
@@ -42,17 +48,11 @@
                       </div>
                       <div class="col-md-12">
                          <div class="form-group">
-                            <label>Phone</label>
-                            <input type="text" class="form-control" name="user_phone" id="user_phone" value="{{ Auth::user()->phone }}" placeholder="Phone">
-                         </div>
-                      </div>
-                      <div class="col-md-12">
-                         <div class="form-group">
                             <label>Address</label>
                             <input type="text" class="form-control" name="user_address" id="user_address" value="{{ Auth::user()->address }}" placeholder="Address">
                          </div>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-md-3">
                          <div class="form-group">
                             <label class="text-danger">Active Profile</label>
                             <select name="user_active" class="form-control" id="user_active" required>
@@ -61,9 +61,9 @@
                             </select>
                          </div>
                       </div>
-                      <div class="col-md-6">
+                      <div class="col-md-5">
                          <div class="form-group">
-                            <label class="text-danger">Active Taxi</label>
+                            <label class="text-danger">Active Taxi</label> <a href="{{ route('driver.taxis') }}" class="btn btn-sm btn-link">Add Taxi</a>
                             <select name="user_active_taxi" class="form-control" id="user_active_taxi" required>
                                @if (Auth::user()->taxi_id == '')
                                   <option value="">Select your Active Taxi</option>
@@ -77,6 +77,13 @@
                                     @endif
                                @endforeach
                             </select>
+                         </div>
+                      </div>
+                      <div class="col-md-4">
+                         <div class="form-group">
+                            <label class="text-danger">Current Location</label>
+                            <input type="text" class="form-control {{ (Auth::user()->location)?'selected-color':'not-selected-color' }}" name="user_location" id="user_location" value="{{ (Auth::user()->location)?'Selected':'Click Here to Select' }}" placeholder="Select Your Location" readonly>
+                            <input type="hidden" name="user_location_long_lat" id="user_location_long_lat" value="{{ (Auth::user()->location) ?? '' }}">
                          </div>
                       </div>
                    </div>
@@ -125,6 +132,11 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+
+    $('#user_location').on('click', function() {
+        console.log("pickup Driver");
+        $('#driverlocationmodal').modal('show');
+    });
     // Listen for the button click to save changes
     $('#updateProfile').on('submit', function(e) {
         e.preventDefault();
@@ -139,6 +151,7 @@ $(document).ready(function() {
             user_phone: $('#updateProfile input[name="user_phone"]').val(),
             user_active: $('#updateProfile #user_active').val(),
             user_active_taxi: $('#updateProfile #user_active_taxi').val(),
+            user_location_long_lat: $('#updateProfile #user_location_long_lat').val(),
             user_address: $('#updateProfile input[name="user_address"]').val(),
             _token: '{{ csrf_token() }}' // Include CSRF token for security
         };

@@ -16,6 +16,8 @@ class Status extends Model
         'user_id',
         'driver_id',
         'booking_id',
+        'type',
+        'role',
         'active',
         'status',
         'pick_up_date',

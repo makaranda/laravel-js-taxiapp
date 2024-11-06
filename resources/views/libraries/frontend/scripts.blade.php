@@ -59,6 +59,60 @@ $(document).ready(function(){
     //     checkCurrentBooking();
     // }, 5000);
 
+    $('#driverCancel').on('click',function(){
+        $('#cancel_booking_id').val($('#map_booking_id').val());
+        $('#cancelModal').modal('show');
+    })
+
+    $('#driverEdnTrip').on('click',function(){
+        $('#endTripBookigId').val($('#map_booking_id').val());
+
+        var checkUserUrl = '{{ route("booking.endbookingdriver") }}';
+        var csrfToken = '{{ csrf_token() }}';
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to End this Trip Now..!!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, do it!',
+            cancelButtonText: 'No, cancel!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: checkUserUrl,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { action: 'checkuser', _token: csrfToken ,'booking_id':endTripBookigId},
+                    success: function(response) {
+                        console.log('Accept Driver Booking : ',response);
+                        if (response.status == 1) {
+                            var display = 0;
+                            checkCurrentBooking(display);
+                            $('#driverModalFooter').removeClass('d-none');
+                            $('#driverModalFooter').addClass('d-block');
+                        }
+                        Swal.fire({
+                            position: "bottom-end",
+                            icon: response.messageType === 'success' ? "success" : "error",
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: response.messageType === 'success' ? 4000 : 2500
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error AA:', error,xhr, status);
+                    }
+                });
+
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+
+            }
+        });
+    })
+
     $('#pickuplocation,#navpickuplocation').on('click', function() {
         console.log("pickup");
         if ($(this).attr('id') === 'pickuplocation') {
@@ -80,6 +134,78 @@ $(document).ready(function(){
 
         $('#locationmodallbl').text("Dropoff Location");
         $('#locationmodal').modal('show');
+    });
+
+    $('#frmDiverLocationPickup').on('submit', function(event) {
+        event.preventDefault();
+        $('#user_location_long_lat').val($('#latitude').val()+','+$('#longatude').val());
+        $('#user_location').css({'background-color':'#7cfc0029','color':'#15ad15'});
+        $('#driverlocationmodal').modal('hide');
+        //console.log("locationPickup");
+    });
+
+    $('#frmCancelBooking').parsley();
+    $('#frmCancelBooking').on('submit', function(event) {
+        event.preventDefault();
+        var bookingId = $('#cancel_booking_id').val();
+        var chooseReason = $('#choose_reason').val();
+        var comments = $('#comments').val();
+        var csrfToken = '{{ csrf_token() }}';
+
+        // Validation check (optional)
+        if (!bookingId || !chooseReason || !comments) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Please fill all fields',
+                timer: 2500,
+                showConfirmButton: false
+            });
+            return;
+        }
+
+        $.ajax({
+            url: '{{ route("customer.cancelbookingform") }}', // Replace with the correct route to handle booking cancellation
+            type: 'POST',
+            data: {
+                booking_id: bookingId,
+                reason: chooseReason,
+                remarks: comments,
+                _token: csrfToken
+            },
+            success: function(response) {
+                // Display SweetAlert based on response messageType
+                Swal.fire({
+                    position: "bottom-end",
+                    icon: response.messageType === 'success' ? "success" : "error",
+                    title: response.message,
+                    showConfirmButton: false,
+                    timer: response.messageType === 'success' ? 4000 : 2500
+                });
+
+                // Optionally clear the form fields after success
+                if (response.messageType === 'success') {
+                    $('#frmCancelBooking')[0].reset();
+                }
+                $('#cancelModal').modal('hide');
+                setTimeout(function() {
+                    location.reload();
+                }, 3000);
+
+            },
+            error: function(xhr, status, error) {
+                console.log("Error getting Categories ! \n", xhr, status, error);
+                Swal.fire({
+                    position: "bottom-end",
+                    icon: "error",
+                    title: "An error occurred. Please try again.",
+                    showConfirmButton: false,
+                    timer: 2500
+                });
+                //$('#overlay').hide();
+            }
+        });
+
     });
 
     $('#locationPickup').on('submit', function(event) {
@@ -111,6 +237,102 @@ $(document).ready(function(){
         }
         $('#locationmodal').modal('hide');
         //console.log("locationPickup");
+    });
+
+
+    var drivermap;
+    $('#driverlocationmodal').on('shown.bs.modal', function () {
+    // Get the current location value from the input field
+    var current_location = $('#user_location_long_lat').val();
+
+    // Check if `current_location` has a value
+    if (current_location) {
+        // Parse the current location (assuming it’s in "lat,lng" format)
+        var coords = current_location.split(',');
+        var lat = parseFloat(coords[0]);
+        var lng = parseFloat(coords[1]);
+
+        // Initialize map with existing location
+        initializeMap(lat, lng);
+    } else {
+        // If `current_location` is empty, use geolocation to get the user's location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
+
+                // Set the latitude and longitude input values
+                $('#latitude').val(lat);
+                $('#longatude').val(lng);
+
+                // Initialize map with geolocation
+                initializeMap(lat, lng);
+            }, function(error) {
+                console.error('Geolocation error:', error);
+                alert('Unable to retrieve your location.');
+            });
+        } else {
+            alert('Geolocation is not supported by this browser.');
+        }
+    }
+
+    // Function to initialize the map with given coordinates
+    function initializeMap(lat, lng) {
+        console.log('Latitude:', lat, 'Longitude:', lng); // Log the coordinates
+
+            // Set input fields with the coordinates
+            $('#latitude').val(lat);
+            $('#longatude').val(lng);
+
+            // Initialize Leaflet map centered on provided coordinates
+            var drivermap = L.map('drivermapid').setView([lat, lng], 13);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(drivermap);
+
+            // Create a draggable marker for the initial location
+            var marker = L.marker([lat, lng], { draggable: true }).addTo(drivermap)
+                .bindPopup('Your current location.')
+                .openPopup();
+
+            // Update coordinates when the marker is dragged
+            marker.on('dragend', function(e) {
+                var newLatLng = marker.getLatLng();
+                $('#latitude').val(newLatLng.lat);
+                $('#longatude').val(newLatLng.lng);
+                marker.bindPopup('Moved to: ' + newLatLng.lat.toFixed(5) + ', ' + newLatLng.lng.toFixed(5)).openPopup();
+            });
+
+            // Listen for map clicks to add a new marker at the clicked location
+            drivermap.on('click', function(e) {
+                var clickedLat = e.latlng.lat;
+                var clickedLng = e.latlng.lng;
+
+                // Update input fields with the clicked location
+                $('#latitude').val(clickedLat);
+                $('#longatude').val(clickedLng);
+
+                // Remove the previous marker if it exists and create a new one
+                if (marker) {
+                    drivermap.removeLayer(marker); // Remove the old marker
+                }
+
+                // Add a new marker at the clicked location
+                marker = L.marker([clickedLat, clickedLng], { draggable: true }).addTo(drivermap)
+                    .bindPopup('New location: ' + clickedLat.toFixed(5) + ', ' + clickedLng.toFixed(5))
+                    .openPopup();
+
+                // Update coordinates when the new marker is dragged
+                marker.on('dragend', function(e) {
+                    var newLatLng = marker.getLatLng();
+                    $('#latitude').val(newLatLng.lat);
+                    $('#longatude').val(newLatLng.lng);
+                    marker.bindPopup('Moved to: ' + newLatLng.lat.toFixed(5) + ', ' + newLatLng.lng.toFixed(5)).openPopup();
+                });
+            });
+        }
     });
 
     var map;
@@ -1137,6 +1359,110 @@ $(document).on('click','.acceptDriverButton',function(){
                 }
             });
         }
+
+        var tripCheckNo = 1;
+        function checkTripStatus(tripno = 0){
+            var checkUserUrl = '{{ route("booking.checktripstatus") }}'; // Pass the route from Blade to a JS variable
+            var csrfToken = '{{ csrf_token() }}';
+            $.ajax({
+                url: checkUserUrl,
+                type: 'GET',
+                dataType: 'json',
+                data: {action:'checkuser','tripcheckno': tripno},
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    console.log(data);
+                    if(data.status == 1 && data.role == 'driver'){
+                        var confirnDriver = data.driver_id;
+                        if(data.type == 'accepted_driver'){
+                            $('#confirmationsLabel').text('Driver Accepted');
+                            $('#confirmationBody').html('<p class="p-4">Driver ID: '+confirnDriver+' is Accepted Your Booking He will Contact you soon</p>');
+                            $('#confirmationsModal').modal('show');
+                        }else if(data.type == 'complete_driver'){
+                            $('#confirmationsLabel').text('Completed Trip - Payment Form');
+                            $('#confirmationSubmit').removeClass('d-none');
+                            $('#confirmationBody').html(`
+                            <form method="post" action="https://sandbox.payhere.lk/pay/checkout">
+                                <p><strong>Your booking ID:</strong> ${data.booking_details.id}</p>
+                                <p><strong>Customer ID:</strong> ${data.booking_details.customer_id}</p>
+                                <p><strong>Driver ID:</strong> ${data.booking_details.driver_id}</p>
+                                <p>Please Confirm Your Payment Now,</p>
+                                s
+                                <input type="hidden" name="merchant_id" value="121XXXX"> <!-- Replace with your Merchant ID -->
+                                <input type="hidden" name="return_url" value="https://taxiweb.insyncsafety.com">
+                                <input type="hidden" name="cancel_url" value="https://taxiweb.insyncsafety.com/cancel">
+                                <input type="hidden" name="notify_url" value="https://taxiweb.insyncsafety.com/notify">
+
+                                </br></br><strong>Item Details</strong></br>
+                                <input type="text" name="order_id" value="${data.booking_details.id}" readonly>
+                                <input type="text" name="items" value="Trip End">
+                                <input type="text" name="currency" value="LKR">
+                                <input type="text" name="amount" value="1000">
+
+                                </br></br><strong>Customer Details</strong></br>
+                                <input type="text" name="first_name" value="${data.user_details.name}">
+                                <input type="text" name="last_name" value="User ID : ${data.user_details.name}">
+                                <input type="text" name="email" value="${data.user_details.email}>
+                                <input type="text" name="phone" value="${data.user_details.phone}">
+                                <input type="text" name="address" value="${data.user_details.address}">
+                                <input type="text" name="city" value="${data.user_details.address}">
+                                <input type="hidden" name="country" value="Sri Lanka">
+                                <input type="hidden" name="hash" value="098F6BCD4621D373CADE4E832627B4F6">
+                                <input type="submit" value="Buy Now" class="theme-btn nav-booking-btn"/>
+                            </form>
+
+
+                        `)
+                            $('#confirmationsModal .modal-footer').addClass('d-none');
+                            $('#confirmationsModal').modal('show');
+                        }
+                        //
+                        setTimeout(function() {
+                            //checkCurrentBooking();
+                        }, 5000);
+                    }else{
+                        //$('#driverModal').addClass('d-block');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error:', xhr, status, error);
+                }
+            });
+        }
+
+        $('#confirmationSubmit').on('click',function(){
+            var checkUserUrl = '{{ route("booking.checkaccepteddriver") }}'; // Pass the route from Blade to a JS variable
+            var csrfToken = '{{ csrf_token() }}';
+            $.ajax({
+                url: checkUserUrl,
+                type: 'GET',
+                dataType: 'json',
+                data: {action:'submitbookingpayment'},
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    console.log(data);
+                    checkTripStatus();
+                    $('#confirmationsModal').modal('show');
+                    if(data.status == 1 && data.role == 'driver'){
+
+                    }else{
+                        //$('#driverModal').addClass('d-block');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error:', xhr, status, error);
+                }
+            });
+        });
+
+        setInterval(function () {
+            checkTripStatus(tripCheckNo);
+            tripCheckNo = tripCheckNo + 1;
+        }, 5000);
 
         setInterval(function () {
             checkAcceptedDriver();

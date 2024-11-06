@@ -243,6 +243,7 @@ class DriverDashboardController extends Controller
         $user->address = $request->user_address;
         $user->active = $request->user_active;
         $user->taxi_id = $request->user_active_taxi;
+        $user->location = $request->user_location_long_lat;
         $user->save();
 
         // Return response to the AJAX request

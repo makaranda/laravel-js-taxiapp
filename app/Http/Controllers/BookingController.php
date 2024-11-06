@@ -19,6 +19,7 @@ use App\Models\User;
 use App\Models\Otp;
 use App\Models\Bookings;
 use App\Models\VehicleTypes;
+use App\Models\Status;
 use DateTime;
 
 class BookingController extends Controller
@@ -317,7 +318,9 @@ class BookingController extends Controller
             }
             $pick_up_location = $checkBookings->pick_up_location;
             list($pickupLatitude, $pickupLongitude) = explode(',', $pick_up_location);
-            $nearbyDrivers = $this->routeService->getNearbyDrivers($pickupLatitude, $pickupLongitude);
+            $driversSelection = ($checkBookings->driver_id != '') ? 1 : 0;
+            $driver_id = $checkBookings->driver_id;
+            $nearbyDrivers = $this->routeService->getNearbyDrivers($pickupLatitude, $pickupLongitude,$driversSelection,$vehicle_id,$driver_id);
 
             $totalCharged = $cost_perkm * $distancekm;
             if (!session()->has('user_id')) {
@@ -351,6 +354,164 @@ class BookingController extends Controller
         return response()->json($responseData);
     }
 
+
+    public function completePayment(Request $request){
+        $status = 0;
+        $message = '';
+        $messageType = '';
+
+        $booking_id = $request->input('booking_id');
+
+        if(isset($booking_id) && $booking_id != ''){
+            $booking = Bookings::find($booking_id);
+            $userDetails = User::where('id',$booking->user_id)->first();
+            $driverDetails = User::where('id',Auth::user()->id)->first();
+            $user_name = $userDetails->name;
+            $driver_name = $driverDetails->name;
+            $acceptData = [
+                'driver_id' => $driver_id,
+                'active' => 'complete',
+            ];
+            $booking->update($acceptData);
+            $status = 1;
+
+            $proData = [
+                'user_id' => $booking->user_id,
+                'driver_id' => $booking->driver_id,
+                'booking_id' => $booking_id,
+                'type' => 'complete_driver',
+                'role' => Auth::user()->role,
+                'active' => 'accept',
+                'status' => 1,
+                'pick_up_date' => $booking->pick_up_date,
+                'pick_up_time' => $booking->pick_up_time,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            $addDatas = Status::create($proData);
+            $insertedId = $addDatas->id;
+
+            $smsmessage = "Dear $user_name,\nDriver $driver_name is End this Trip Please Arrange the Payment \nCheers,\nEsoft Taxi Team";
+
+            //$message = "Dear $name,\nPlease use the following OTP to verify your account \nOTP Number : $otp\nCheers,\nEsoft Taxi Team";
+
+            // Send the request to the SMS API
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer 2287|gbVI7WdVoG69zUFAV4cxCDddN0HsTUgiwgC86QvG',
+            ])->post('https://sms.send.lk/api/v3/sms/send', [
+                'recipient' => $userDetails->phone,
+                'sender_id' => 'SendTest', // Use your actual sender ID
+                'message' => $smsmessage,
+            ]);
+
+            $messageType = 'success';
+            $message = 'You have Successfully Accept this Trip ..!!';
+        }else{
+            $insertedId = '';
+            $status = 0;
+            $messageType = 'error';
+            $message = 'There have something Missing ..!!';
+        }
+
+        $responseData = [
+            'status' => $status,
+            'message' => $message,
+            'messageType' => $messageType,
+            'status_id' => $insertedId
+        ];
+
+        return response()->json($responseData);
+    }
+
+    public function endBookingDriver(Request $request){
+        $status = 0;
+        $message = '';
+        $messageType = '';
+
+        $booking_id = $request->input('booking_id');
+
+        if(isset($booking_id) && $booking_id != ''){
+            $booking = Bookings::find($booking_id);
+            $userDetails = User::where('id',$booking->user_id)->first();
+            $driverDetails = User::where('id',Auth::user()->id)->first();
+            $user_name = $userDetails->name;
+            $driver_name = $driverDetails->name;
+            $acceptData = [
+                'driver_id' => $driver_id,
+                'active' => 'complete',
+            ];
+            $booking->update($acceptData);
+            $status = 1;
+
+            $proData = [
+                'user_id' => $booking->user_id,
+                'driver_id' => $booking->driver_id,
+                'booking_id' => $booking_id,
+                'type' => 'complete_driver',
+                'role' => Auth::user()->role,
+                'active' => 'accept',
+                'status' => 1,
+                'pick_up_date' => $booking->pick_up_date,
+                'pick_up_time' => $booking->pick_up_time,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            $addDatas = Status::create($proData);
+            $insertedId = $addDatas->id;
+
+            $smsmessage = "Dear $user_name,\nDriver $driver_name is End this Trip Please Arrange the Payment \nCheers,\nEsoft Taxi Team";
+
+            //$message = "Dear $name,\nPlease use the following OTP to verify your account \nOTP Number : $otp\nCheers,\nEsoft Taxi Team";
+
+            // Send the request to the SMS API
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer 2287|gbVI7WdVoG69zUFAV4cxCDddN0HsTUgiwgC86QvG',
+            ])->post('https://sms.send.lk/api/v3/sms/send', [
+                'recipient' => $userDetails->phone,
+                'sender_id' => 'SendTest', // Use your actual sender ID
+                'message' => $smsmessage,
+            ]);
+
+            $merchant_id = 'NDIwNDUxMjU3NDIyMDA0ODYxNDIyMzA5NDczMDY1NDEwMTQ1OTU3NA==';
+            $currency = 'LKR';
+            $merchant_secret = '4Ob84MZzSc94PYfjaeAyv84ObN3WcozMB8X6CDzDQW15';
+            $hash = strtoupper(
+                md5(
+                    $merchant_id .
+                    $booking_id .
+                    $booking->total_charged .
+                    $currency .
+                    strtoupper(md5($merchant_secret))
+                )
+            );
+
+            $messageType = 'success';
+            $message = 'You have Successfully Accept this Trip ..!!';
+        }else{
+            $insertedId = '';
+            $booking = '';
+            $userDetails = '';
+            $hash = '';
+            $status = 0;
+            $messageType = 'error';
+            $message = 'There have something Missing ..!!';
+        }
+
+        $responseData = [
+            'status' => $status,
+            'message' => $message,
+            'messageType' => $messageType,
+            'status_id' => $insertedId,
+            'booking_details' => $booking,
+            'user_details' => $userDetails,
+            'hash' => $hash
+        ];
+
+        return response()->json($responseData);
+    }
+
     public function acceptBookingDriver(Request $request){
         $status = 0;
         $message = '';
@@ -377,6 +538,23 @@ class BookingController extends Controller
             $booking->update($acceptData);
             $status = 1;
 
+            $proData = [
+                'user_id' => $booking->user_id,
+                'driver_id' => $booking->driver_id,
+                'booking_id' => $booking_id,
+                'type' => 'accepted_driver',
+                'role' => Auth::user()->role,
+                'active' => 'pending',
+                'status' => 1,
+                'pick_up_date' => $booking->pick_up_date,
+                'pick_up_time' => $booking->pick_up_time,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            $addDatas = Status::create($proData);
+            $insertedId = $addDatas->id;
+
             $smsmessage = "Dear $user_name,\nDriver $driver_name is accepted your booking \nCheers,\nEsoft Taxi Team";
 
             //$message = "Dear $name,\nPlease use the following OTP to verify your account \nOTP Number : $otp\nCheers,\nEsoft Taxi Team";
@@ -393,6 +571,7 @@ class BookingController extends Controller
             $messageType = 'success';
             $message = 'You have Successfully Accept this Trip ..!!';
         }else{
+            $insertedId = '';
             $status = 0;
             $messageType = 'error';
             $message = 'There have something Missing ..!!';
@@ -402,6 +581,134 @@ class BookingController extends Controller
             'status' => $status,
             'message' => $message,
             'messageType' => $messageType,
+            'status_id' => $insertedId
+        ];
+
+        return response()->json($responseData);
+    }
+
+    public function checkTripStatus(Request $request){
+        if (Auth::check() && Auth::user()->role == 'customer') {
+
+            if(isset($request->tripcheckno) && $request->tripcheckno == 1){
+
+                $cehckStatusCount = Status::where('user_id',Auth::user()->id)
+                                    ->where('pick_up_date',date('Y-m-d'))
+                                    ->where('status',1)
+                                    ->whereIn('active',['active','pending'])
+                                    ->where('type','accepted_driver')
+                                    ->count();
+
+                $cehckStatus = Status::where('user_id',Auth::user()->id)
+                                    ->where('pick_up_date',date('Y-m-d'))
+                                    ->where('status',1)
+                                    ->whereIn('active',['active','pending'])
+                                    ->where('type','accepted_driver')
+                                    ->first();
+
+                $status = 1;
+                $user_id = $cehckStatus->user_id;
+                $driver_id = $cehckStatus->driver_id;
+                $booking_id = $cehckStatus->booking_id;
+                $type = $cehckStatus->type;
+                $role = $cehckStatus->role;
+
+            }elseif(isset($request->tripcheckno) && $request->tripcheckno == 2){
+
+                $cehckStatusCount = Status::where('user_id',Auth::user()->id)
+                                ->where('pick_up_date',date('Y-m-d'))
+                                ->where('status',1)
+                                ->whereIn('active',['active','pending'])
+                                ->where('type','accepted_driver')
+                                ->count();
+
+                $cehckStatus = Status::where('user_id',Auth::user()->id)
+                                ->where('pick_up_date',date('Y-m-d'))
+                                ->where('status',1)
+                                ->whereIn('active',['active','pending'])
+                                ->where('type','accepted_driver')
+                                ->first();
+
+                $status = Status::find($cehckStatus->id);
+                $updateData = [
+                    'status' => 1,
+                    'active' => 'pending',
+                ];
+                $status->update($updateData);
+
+                $status = 1;
+                $user_id = $cehckStatus->user_id;
+                $driver_id = $cehckStatus->driver_id;
+                $booking_id = $cehckStatus->booking_id;
+                $type = $cehckStatus->type;
+                $role = $cehckStatus->role;
+
+            }elseif(isset($request->tripcheckno) && $request->tripcheckno == 3){
+
+                $cehckStatusCount = Status::where('user_id',Auth::user()->id)
+                                ->where('pick_up_date',date('Y-m-d'))
+                                ->where('status',1)
+                                ->whereIn('active',['active','pending'])
+                                ->where('type','accepted_driver')
+                                ->count();
+
+                $cehckStatus = Status::where('user_id',Auth::user()->id)
+                                ->where('pick_up_date',date('Y-m-d'))
+                                ->where('status',1)
+                                ->whereIn('active',['active','pending'])
+                                ->where('type','accepted_driver')
+                                ->first();
+
+                if($cehckStatus->type == 'accepted_driver'){
+                    $status = Status::find($cehckStatus->id);
+                    $updateData = [
+                        'status' => 0,
+                        'active' => 'cancel',
+                    ];
+                    $status->update($updateData);
+                }else if($cehckStatus->type == 'complete_driver'){
+                    $status = Status::find($cehckStatus->id);
+                    $updateData = [
+                        'status' => 0,
+                    ];
+                    $status->update($updateData);
+                }
+
+
+                $status = 0;
+                $user_id = $cehckStatus->user_id;
+                $driver_id = $cehckStatus->driver_id;
+                $booking_id = $cehckStatus->booking_id;
+                $type = $cehckStatus->type;
+                $role = $cehckStatus->role;
+
+            }else{
+                $status = 0;
+                $user_id = '';
+                $driver_id = '';
+                $booking_id = '';
+                $type = '';
+                $role = '';
+            }
+
+
+
+        }else{
+            $status = 0;
+            $user_id = '';
+            $driver_id = '';
+            $booking_id = '';
+            $type = '';
+            $role = '';
+        }
+
+        $responseData = [
+            'status' => $status,
+            'type' => $type,
+            'role' => $role,
+            'user_id' => $user_id,
+            'driver_id' => $driver_id,
+            'booking_id' => $booking_id,
         ];
 
         return response()->json($responseData);

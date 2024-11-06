@@ -77,23 +77,66 @@ class RouteService
         return null;
     }
 
-    public function getNearbyDrivers($pickupLatitude, $pickupLongitude, $radius = 1000)
+    public function getNearbyDrivers($pickupLatitude, $pickupLongitude,$driversSelection = 0,$vehicle_id = null,$user_id = 0, $radius = 1000)
     {
-        $drivers = DB::table('users')
-                    ->select('users.id', 'users.name', 'users.phone', 'users.email', 'users.location', 'users.taxi_id', 'taxis.type', 'vehicle_types.map_icon')
-                    ->selectRaw("
-                        (6371000 * acos(
-                            cos(radians(?)) * cos(radians(CAST(SUBSTRING_INDEX(users.location, ',', 1) AS DECIMAL(10, 6)))) *
-                            cos(radians(CAST(SUBSTRING_INDEX(users.location, ',', -1) AS DECIMAL(10, 6))) - radians(?)) +
-                            sin(radians(?)) * sin(radians(CAST(SUBSTRING_INDEX(users.location, ',', 1) AS DECIMAL(10, 6))))
-                        )) AS distance", [$pickupLatitude, $pickupLongitude, $pickupLatitude])
-                    ->where('users.role', 'driver')
-                    ->join('taxis', 'users.taxi_id', '=', 'taxis.id')
-                    ->join('vehicle_types', 'taxis.type', '=', 'vehicle_types.id')
-                    ->havingRaw('distance <= ?', [$radius])
-                    ->orderBy('distance')
-                    ->get();
-
+        if($driversSelection == 0){
+                $drivers = DB::table('users')
+                            ->select('users.id', 'users.name','users.active', 'users.phone', 'users.email', 'users.location', 'users.taxi_id', 'taxis.type', 'vehicle_types.map_icon')
+                            ->selectRaw("
+                                (6371000 * acos(
+                                    cos(radians(?)) * cos(radians(CAST(SUBSTRING_INDEX(users.location, ',', 1) AS DECIMAL(10, 6)))) *
+                                    cos(radians(CAST(SUBSTRING_INDEX(users.location, ',', -1) AS DECIMAL(10, 6))) - radians(?)) +
+                                    sin(radians(?)) * sin(radians(CAST(SUBSTRING_INDEX(users.location, ',', 1) AS DECIMAL(10, 6))))
+                                )) AS distance", [$pickupLatitude, $pickupLongitude, $pickupLatitude])
+                            ->where('users.role', 'driver')
+                            ->where('vehicle_types.id', $vehicle_id)
+                            ->where('users.location','!=','')
+                            ->where('users.active','=','active')
+                            ->join('taxis', 'users.taxi_id', '=', 'taxis.id')
+                            ->join('vehicle_types', 'taxis.type', '=', 'vehicle_types.id')
+                            ->havingRaw('distance <= ?', [$radius])
+                            ->orderBy('distance')
+                            ->get();
+        }else{
+            if($user_id == 0){
+                $drivers = DB::table('users')
+                            ->select('users.id', 'users.name', 'users.phone', 'users.email', 'users.location', 'users.taxi_id', 'taxis.type', 'vehicle_types.map_icon')
+                            ->selectRaw("
+                                (6371000 * acos(
+                                    cos(radians(?)) * cos(radians(CAST(SUBSTRING_INDEX(users.location, ',', 1) AS DECIMAL(10, 6)))) *
+                                    cos(radians(CAST(SUBSTRING_INDEX(users.location, ',', -1) AS DECIMAL(10, 6))) - radians(?)) +
+                                    sin(radians(?)) * sin(radians(CAST(SUBSTRING_INDEX(users.location, ',', 1) AS DECIMAL(10, 6))))
+                                )) AS distance", [$pickupLatitude, $pickupLongitude, $pickupLatitude])
+                            ->where('users.role', 'driver')
+                            ->where('vehicle_types.id', $vehicle_id)
+                            ->where('users.location','!=','')
+                            ->where('users.active','=','active')
+                            ->join('taxis', 'users.taxi_id', '=', 'taxis.id')
+                            ->join('vehicle_types', 'taxis.type', '=', 'vehicle_types.id')
+                            ->havingRaw('distance <= ?', [$radius])
+                            ->orderBy('distance')
+                            ->get();
+            }else{
+                $drivers = DB::table('users')
+                            ->select('users.id', 'users.name', 'users.phone', 'users.email', 'users.location', 'users.taxi_id', 'taxis.type', 'vehicle_types.map_icon')
+                            ->selectRaw("
+                                (6371000 * acos(
+                                    cos(radians(?)) * cos(radians(CAST(SUBSTRING_INDEX(users.location, ',', 1) AS DECIMAL(10, 6)))) *
+                                    cos(radians(CAST(SUBSTRING_INDEX(users.location, ',', -1) AS DECIMAL(10, 6))) - radians(?)) +
+                                    sin(radians(?)) * sin(radians(CAST(SUBSTRING_INDEX(users.location, ',', 1) AS DECIMAL(10, 6))))
+                                )) AS distance", [$pickupLatitude, $pickupLongitude, $pickupLatitude])
+                            ->where('users.role', 'driver')
+                            ->where('users.id', $user_id)
+                            ->where('vehicle_types.id', $vehicle_id)
+                            ->where('users.location','!=','')
+                            ->where('users.active','=','active')
+                            ->join('taxis', 'users.taxi_id', '=', 'taxis.id')
+                            ->join('vehicle_types', 'taxis.type', '=', 'vehicle_types.id')
+                            ->havingRaw('distance <= ?', [$radius])
+                            ->orderBy('distance')
+                            ->get();
+            }
+        }
         return $drivers;
 
     }
@@ -105,20 +148,20 @@ class RouteService
 
         // Retrieve bookings with calculated distance
         $customers = DB::table('bookings')
-            ->join('users', 'bookings.user_id', '=', 'users.id')
-            ->select('users.id as user_id', 'users.name','users.phone','bookings.total_km','bookings.id as booking_id' ,'bookings.total_charged', 'users.email', 'bookings.pick_up_location', 'bookings.drop_off_location')
-            ->selectRaw("
-                (6371000 * acos(
-                    cos(radians(?)) * cos(radians(CAST(SUBSTRING_INDEX(bookings.pick_up_location, ',', 1) AS DECIMAL(10, 6)))) *
-                    cos(radians(CAST(SUBSTRING_INDEX(bookings.pick_up_location, ',', -1) AS DECIMAL(10, 6))) - radians(?)) +
-                    sin(radians(?)) * sin(radians(CAST(SUBSTRING_INDEX(bookings.pick_up_location, ',', 1) AS DECIMAL(10, 6))))
-                )) AS distance", [$driverLatitude, $driverLongitude, $driverLatitude])
-            ->whereDate('bookings.pick_up_date', $today)
-            ->where('users.role', 'customer')
-            ->where('bookings.active','pending')
-            ->havingRaw('distance <= ?', [$radius])
-            ->orderBy('distance')
-            ->get();
+                    ->join('users', 'bookings.user_id', '=', 'users.id')
+                    ->select('users.id as user_id', 'users.name','users.phone','bookings.total_km','bookings.id as booking_id' ,'bookings.total_charged', 'users.email', 'bookings.pick_up_location', 'bookings.drop_off_location')
+                    ->selectRaw("
+                        (6371000 * acos(
+                            cos(radians(?)) * cos(radians(CAST(SUBSTRING_INDEX(bookings.pick_up_location, ',', 1) AS DECIMAL(10, 6)))) *
+                            cos(radians(CAST(SUBSTRING_INDEX(bookings.pick_up_location, ',', -1) AS DECIMAL(10, 6))) - radians(?)) +
+                            sin(radians(?)) * sin(radians(CAST(SUBSTRING_INDEX(bookings.pick_up_location, ',', 1) AS DECIMAL(10, 6))))
+                        )) AS distance", [$driverLatitude, $driverLongitude, $driverLatitude])
+                    ->whereDate('bookings.pick_up_date', $today)
+                    ->where('users.role', 'customer')
+                    ->where('bookings.active','pending')
+                    ->havingRaw('distance <= ?', [$radius])
+                    ->orderBy('distance')
+                    ->get();
 
         $count = $customers->count();
 

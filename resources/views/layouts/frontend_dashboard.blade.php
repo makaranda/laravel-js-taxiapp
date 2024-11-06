@@ -48,6 +48,18 @@
      <div class="user-profile py-120">
         <div class="container">
            <div class="row">
+            @if (Auth::user()->role == 'driver')
+              <div class="col-12 col-md-12 mb-4">
+                @if (Auth::user()->active == '' || Auth::user()->taxi_id == '' || Auth::user()->location == '')
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Warinig!</strong> You should Select Active Profile ,Active Taxi & Current Location for start the taxi proccess...!!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                </div>
+                @endif
+            @endif
+           </div>
+           <div class="row">
               <div class="col-lg-3">
                 @include('components.frontend.user_profile')
               </div>

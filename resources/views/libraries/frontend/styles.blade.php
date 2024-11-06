@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{{ url('public/assets/css/jquery-ui.min.css') }}">
 <link rel="stylesheet" href="{{ url('public/assets/css/jquery.timepicker.min.css') }}">
 <link rel="stylesheet" href="{{ url('public/assets/css/nice-select.min.css') }}">
-<link rel="stylesheet" href="{{ url('public/assets/css/style.css') }}">
+<link rel="stylesheet" href="{{ url('public/assets/css/style.css') }}?v={{ date('is') }}">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
 <!-- Leaflet CSS -->

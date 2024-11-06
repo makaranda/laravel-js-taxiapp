@@ -48,7 +48,10 @@ Route::get('booking-get-route', [BookingController::class, 'frontGetRoute'])->na
 Route::post('booking-cancel', [BookingController::class, 'bookingCancel'])->name('booking.cancel');
 Route::get('booking-check-nearby-customers', [BookingController::class, 'checkNearByCustomers'])->name('booking.checknearbycustomers');
 Route::post('accept-booking-driver', [BookingController::class, 'acceptBookingDriver'])->name('booking.acceptbookingdriver');
+Route::post('end-booking-driver', [BookingController::class, 'endBookingDriver'])->name('booking.endbookingdriver');
 Route::get('cechk-accepted-driver', [BookingController::class, 'checkAcceptedDriver'])->name('booking.checkaccepteddriver');
+Route::get('cechk-trip-status', [BookingController::class, 'checkTripStatus'])->name('booking.checktripstatus');
+Route::get('payment-complete', [BookingController::class, 'completePayment'])->name('booking.paymentcomplete');
 
 // Protect routes by role-based middleware
 

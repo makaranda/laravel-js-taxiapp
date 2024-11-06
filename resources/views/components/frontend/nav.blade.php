@@ -41,6 +41,14 @@
     </div>
     <div class="main-navigation">
        <nav class="navbar navbar-expand-lg">
+          <div class="w-100 pl-3 pr-3 pt-3 pb-3 d-block d-sm-none d-md-none">
+            @if(!Auth::check())
+            <div class="row justify-content-center">
+                <div class="col-12 text-right"><a href="{{ route('login.login') }}" class="btn btn-sm btn-warning"><i class="far fa-arrow-right-to-bracket"></i> Login</a>
+                <a href="{{ route('register.index') }}" class="btn btn-sm btn-warning"><i class="far fa-user-vneck"></i> Register</a></div>
+            </div>
+            @endif
+          </div>
           <div class="container position-relative">
              <a class="navbar-brand" href="{{ URL::to('/') }}">
              <img src="{{ url('public/assets/img/logo/logo.png') }}" alt="logo">

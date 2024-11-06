@@ -352,4 +352,12 @@ button.profile-img-btn:hover {
     position: absolute;
 }
 
+.selected-color{
+    background-color: rgb(124, 252, 0);
+    color: rgb(21, 173, 21);
+}
+.not-selected-color{
+    background-color: rgba(255, 102, 68, 0.623);
+    color: rgb(98, 0, 0);
+}
 

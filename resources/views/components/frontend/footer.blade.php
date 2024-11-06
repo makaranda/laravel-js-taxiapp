@@ -282,11 +282,12 @@
                     <h6>Charge : Rs <span id="showModalCharge">00</span></h6>
                 </div>
             </div>
-            <div class="row {{ isset(Auth::user()->role) && Auth::user()->role == 'driver' ? 'd-flex' : 'd-none'  }}">
+            <div class="row">
                 <div class="col-12 col-md-6 text-center pt-2">
                     <button type="button" class="btn btn-danger w-100" id="driverCancel">Cancel Trip</button>
                 </div>
-                <div class="col-12 col-md-6 text-center pt-2">
+                <div class="col-12 col-md-6 text-center pt-2 {{ isset(Auth::user()->role) && Auth::user()->role == 'driver' ? 'd-flex' : 'd-none'  }}">
+                    <input type="hidden" id="endTripBookigId" name="endTripBookigId"/>
                     <button type="button" class="btn btn-primary w-100" id="driverEdnTrip">End Trip</button>
                 </div>
             </div>
@@ -296,6 +297,85 @@
     </div>
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cancelModalLabel">Cancel Booking</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="#" method="POST" id="frmCancelBooking">
+        <div class="modal-body p-0">
+            <input type="hidden" name="cancel_booking_id" id="cancel_booking_id"/>
+            <input type="hidden" name="cance_user_id" id="cance_user_id"/>
+            <input type="hidden" name="cancel_driver_id" id="cancel_driver_id"/>
+            <input type="hidden" name="cancel_role" id="cancel_role"/>
+            <div class="row p-4">
+                <div class="col-md-12">
+                    <div class="form-group">
+                       <label>Reason For Cancellation</label>
+                       <select class="form-control" name="choose_reason" id="choose_reason" required>
+                          <option value="">Choose Reason</option>
+                          <option value="1">Low Rider Score</option>
+                          <option value="2">Personal Issues</option>
+                          <option value="3">Others</option>
+                       </select>
+                    </div>
+                 </div>
+                 <div class="col-md-12">
+                    <div class="form-group">
+                       <label>Your Comment</label>
+                       <textarea class="form-control" rows="3" placeholder="Write Comment" name="comments" id="comments" required></textarea>
+                    </div>
+                 </div>
+            </div>
+        </div>
+          <div class="modal-footer d-block">
+              <div class="row">
+                  <div class="col-6 col-md-6 pl-0">
+                      <button type="button" class="btn btn-danger w-100" data-bs-dismiss="modal">Close</button>
+                  </div>
+                  <div class="col-6 col-md-6 pr-0">
+                      <button type="submit" class="btn btn-primary w-100" id="confirmationSubmit">Submit</button>
+                  </div>
+              </div>
+          </div>
+        </form>
+      </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="confirmationsModal" tabindex="-1" aria-labelledby="confirmationsLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationsLabel"></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+            <input type="hidden" name="confirmation_booking_id" id="confirmation_booking_id"/>
+            <input type="hidden" name="confirmation_user_id" id="confirmation_user_id"/>
+            <input type="hidden" name="confirmation_driver_id" id="confirmation_driver_id"/>
+            <input type="hidden" name="confirmation_role" id="confirmation_role"/>
+            <div class="w-100 pt-4 pb-4" id="confirmationBody">
+            </div>
+        </div>
+          <div class="modal-footer d-block">
+              <div class="row">
+                  <div class="col-6 col-md-6 pl-0">
+                      <button type="button" class="btn btn-danger w-100" data-bs-dismiss="modal">Close</button>
+                  </div>
+                  <div class="col-6 col-md-6 pr-0">
+                      <button type="button" class="btn btn-primary w-100 d-none" id="confirmationSubmit">Submit</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="driverModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
@@ -459,6 +539,34 @@
 
 
  <!-- Modal -->
+ <div class="modal fade" id="driverlocationmodal" tabindex="-1" aria-labelledby="driverlocationmodallbl" aria-hidden="true">
+    <div class="modal-dialog">
+      <form action="#" method="POST" id="frmDiverLocationPickup">
+        <input type="hidden" name="longatude" id="longatude"/>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="driverlocationmodallbl">Driver Current Location</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <div id="drivermapid" style="height: 400px;"></div>
+        </div>
+        <div class="modal-footer d-block">
+            <div class="row">
+                <div class="col-6 col-md-6 pl-0">
+                    <button type="button" class="btn btn-danger w-100" data-bs-dismiss="modal">Close</button>
+                </div>
+                <div class="col-6 col-md-6 pr-0">
+                    <button type="submit" class="btn btn-primary w-100">Add Location</button>
+                </div>
+            </div>
+        </div>
+      </div>
+    </form>
+    </div>
+  </div>
+
+ <!-- Modal -->
  <div class="modal fade" id="locationmodal" tabindex="-1" aria-labelledby="locationmodallbl" aria-hidden="true">
     <div class="modal-dialog">
       <form action="#" method="POST" id="locationPickup">
@@ -551,9 +659,19 @@
 {{-- <script src="https://unpkg.com/@mapbox/polyline@1.1.1/lib/polyline.js"></script> --}}
 
     <script>
-        $(document).ready(function() {
-
+     $(document).ready(function() {
+        // Toggle sidebar open
+        $('.navbar-toggler').on('click', function() {
+            $('#main_nav').addClass('show_mobile_menu');
+            $('.navbar-toggler').addClass('show_mobile_menu_toggler');
+            //$('#main_nav').toggleClass('show').hide();
         });
+        $('.show_mobile_menu_toggler').on('click', function() {
+            $('.show_mobile_menu').style({'display':'none'});
+            $('#main_nav').removeClass('show_mobile_menu');
+            $('#main_nav').removeClass('show');
+        });
+    });
         //$('.select').niceSelect();
 
         // let watchId; // Variable to store the watchPosition ID
