@@ -87,6 +87,7 @@ class LoginController extends Controller
                 'messageType' => 'success',
                 'redirectUrl' => $redirectUrl,
             ]);
+
         } else {
             // Authentication failed, return error message
             return response()->json([
