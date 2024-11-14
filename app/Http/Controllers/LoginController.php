@@ -79,6 +79,7 @@ class LoginController extends Controller
                         'message' => 'Invalid role for this user. Please contact support.',
                         'messageType' => 'error',
                     ]);
+
             }
 
             // If everything is correct, return success message and redirect URL
@@ -94,6 +95,7 @@ class LoginController extends Controller
                 'message' => 'Invalid email or password.',
                 'messageType' => 'error',
             ]);
+
         }
     }
 
